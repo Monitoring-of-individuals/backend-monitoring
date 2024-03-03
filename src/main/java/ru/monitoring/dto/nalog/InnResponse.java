@@ -16,6 +16,4 @@ public class InnResponse {
     private Inquiry inquiry;
     private String error;
     private String errormsg;
-
-
 }
