@@ -21,5 +21,4 @@ public class SelfEmplResponse {
     // Общие данные для всх ответов
     private String error;
     private String errormsg;
-//    private String message;
 }

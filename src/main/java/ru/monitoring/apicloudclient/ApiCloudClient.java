@@ -12,12 +12,16 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
 import reactor.util.retry.Retry;
+import ru.monitoring.dto.fedres_banckrupt.BankruptResponse;
 import ru.monitoring.dto.fssp.FsspResponse;
+import ru.monitoring.dto.gibdd.GibddResponse;
 import ru.monitoring.dto.mvd.PassportCheckResponse;
 import ru.monitoring.dto.nalog.InnResponse;
 import ru.monitoring.dto.nalog.SelfEmplResponse;
+import ru.monitoring.dto.rosfinmon.RosFinMonResponse;
 
 import java.time.Duration;
+import java.util.LinkedHashMap;
 import java.util.concurrent.TimeUnit;
 
 import static ru.monitoring.utils.Constants.API_CLOUD_URL;
@@ -54,7 +58,7 @@ public class ApiCloudClient {
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .retrieve()
                 .bodyToMono(FsspResponse.class)
-                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(500)))
+//                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(500)))
                 .block();
     }
 
@@ -71,7 +75,7 @@ public class ApiCloudClient {
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .retrieve()
                 .bodyToMono(InnResponse.class)
-                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(500)))
+//                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(500)))
                 .block();
     }
 
@@ -88,7 +92,7 @@ public class ApiCloudClient {
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .retrieve()
                 .bodyToMono(SelfEmplResponse.class)
-                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(500)))
+//                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(500)))
                 .block();
     }
 
@@ -99,59 +103,109 @@ public class ApiCloudClient {
         return client.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/api")
-                        .path(service) // /nalog.php
+                        .path(service) // /mvd.php
                         .queryParams(paramMap)
                         .build())
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .retrieve()
                 .bodyToMono(PassportCheckResponse.class)
-                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(500)))
+//                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(500)))
                 .block();
     }
 
+    //http://localhost:8080/api/gibdd.php?type=driver&serianomer=1234567890&date=07.11.2014&token=53ba1b7a55abbа14aa97eff3a5220792
+    public GibddResponse getDriverIdCheck(String service, MultiValueMap paramMap) {
+        return client.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/api")
+                        .path(service) // /gibdd.php
+                        .queryParams(paramMap)
+                        .build())
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                .retrieve()
+                .bodyToMono(GibddResponse.class)
+//                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(500)))
+                .block();
+    }
+
+    //http://localhost:8080/api/fedsfm.php?type=terextr&search=АБАКАРОВ ШАМИЛЬ БАГОМЕДОВИЧ&token=53ba1b7a55abbа14aa97eff3a5220792
+    public RosFinMonResponse getTerrorExtrCheck(String service, MultiValueMap paramMap) {
+        return client.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/api")
+                        .path(service) // /fedsfm.php
+                        .queryParams(paramMap)
+                        .build())
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                .retrieve()
+                .bodyToMono(RosFinMonResponse.class)
+//                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(500)))
+                .block();
+    }
+
+    public BankruptResponse getBankruptCheck(String service, MultiValueMap paramMap) {
+
+        return client.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/api")
+                        .path(service) // /bankrot.php
+                        .queryParams(paramMap)
+                        .build())
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                .retrieve()
+                .bodyToMono(BankruptResponse.class)
+//                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(500)))
+                .block();
+    }
+
+
+    // ------------------------------------------------------------------------
+//    public Object getSelfEmplByInnTestObject(String service, MultiValueMap paramMap) {
+//
+//        return client.get()
+//                .uri(uriBuilder -> uriBuilder
+//                        .path("/api")
+//                        .path(service) // /nalog.php
+//                        .queryParams(paramMap)
+//                        .build())
+//                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+//                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+//                .retrieve()
+//                .bodyToMono(Object.class)
+//                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(500)))
+//                .block();
+//    }
 //    public static void main(String[] args) {
 //
 //        final ApiCloudClient webApiCloudClient = new ApiCloudClient(API_CLOUD_URL);
-//
-//        MultiValueMap paramMap = new LinkedMultiValueMap();
-//        paramMap.add("type", "inn");
-//        paramMap.add("lastname", "Петров");
-//        paramMap.add("firstname", "Петр");
-//        paramMap.add("birthdate", "15.07.1980");
-//        paramMap.add("serianomer", "9876543210");
-//        paramMap.add("token", "53ba1b7a55abbа14aa97eff3a5220792");
-//
-//        InnResponse innResponse = webApiCloudClient.getInnByFioAndPassportAndBirthday("/nalog.php", paramMap);
-//        System.out.println(innResponse);
-//        System.out.println();
-//        String inn = innResponse.getInn();
-//
+
+ //_________________________________________Если возвращать не сущность, а Object________________________________
 //        MultiValueMap paramMap1 = new LinkedMultiValueMap();
 //        paramMap1.add("type", "npd");
-//        paramMap1.add("inn", inn);
+//        paramMap1.add("inn", "123456789012");
 //        paramMap1.add("token", "53ba1b7a55abbа14aa97eff3a5220792");
 //
-//        for (int i = 1; i <= 3; i++) {
-//            SelfEmplResponse result = webApiCloudClient.getSelfEmplByInn("/nalog.php", paramMap1);
-//            System.out.println(result);
+//        Object result = webApiCloudClient.getSelfEmplByInnTestObject("/nalog.php", paramMap1);
+//        System.out.println(result);
+//
+//        if (result instanceof SelfEmplResponse) {
+//            System.out.println("TRUE");
+//        } else {
+//            System.out.println("FALSE");
 //        }
 //
-
-
-// _________________________________________Если возвращать не сущность, а Object________________________________
-//        for (int i = 1; i <= 6; i++) {
-//            Object result = webClient.getSelfEmplByInn("npd", "123456789012", "53ba1b7a55abbа14aa97eff3a5220792");
-//            System.out.println(result);
+//        LinkedHashMap result1 = (LinkedHashMap) result;
 //
-//            LinkedHashMap result1 = (LinkedHashMap) result;
-//
-//            if (result1.get("status").equals(200)) {
-//                System.out.println("НАШЛИ");
-//            } else if (result1.get("status").equals(404)) {
-//                System.out.println("TIME_MAX_CONNECT");
-//            }
+//        if (result1.get("status").equals(200)) {
+//            System.out.println("НАШЛИ");
+//        } else if (result1.get("status").equals(404)) {
+//            System.out.println("TIME_MAX_CONNECT");
 //        }
+//
 //    }
 
 }
