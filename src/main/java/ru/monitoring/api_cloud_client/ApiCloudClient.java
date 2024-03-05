@@ -1,13 +1,13 @@
-package ru.monitoring.apicloudclient;
+package ru.monitoring.api_cloud_client;
 
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
@@ -21,10 +21,8 @@ import ru.monitoring.dto.nalog.SelfEmplResponse;
 import ru.monitoring.dto.rosfinmon.RosFinMonResponse;
 
 import java.time.Duration;
-import java.util.LinkedHashMap;
 import java.util.concurrent.TimeUnit;
 
-import static ru.monitoring.utils.Constants.API_CLOUD_URL;
 import static ru.monitoring.utils.Constants.TIMEOUT;
 
 
@@ -32,7 +30,7 @@ import static ru.monitoring.utils.Constants.TIMEOUT;
 public class ApiCloudClient {
     private final WebClient client;
 
-    public ApiCloudClient(String apiCloudUrl) {
+    public ApiCloudClient(@Value("${apicloud.url}")String apiCloudUrl) {
         HttpClient httpClient = HttpClient.create()
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, TIMEOUT)
                 .responseTimeout(Duration.ofMillis(TIMEOUT))
@@ -58,7 +56,7 @@ public class ApiCloudClient {
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .retrieve()
                 .bodyToMono(FsspResponse.class)
-//                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(500)))
+                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(60000)))
                 .block();
     }
 
@@ -75,7 +73,7 @@ public class ApiCloudClient {
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .retrieve()
                 .bodyToMono(InnResponse.class)
-//                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(500)))
+                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(60000)))
                 .block();
     }
 
@@ -92,7 +90,7 @@ public class ApiCloudClient {
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .retrieve()
                 .bodyToMono(SelfEmplResponse.class)
-//                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(500)))
+                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(60000)))
                 .block();
     }
 
@@ -110,7 +108,7 @@ public class ApiCloudClient {
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .retrieve()
                 .bodyToMono(PassportCheckResponse.class)
-//                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(500)))
+                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(60000)))
                 .block();
     }
 
@@ -126,7 +124,7 @@ public class ApiCloudClient {
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .retrieve()
                 .bodyToMono(GibddResponse.class)
-//                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(500)))
+                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(60000)))
                 .block();
     }
 
@@ -158,12 +156,12 @@ public class ApiCloudClient {
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .retrieve()
                 .bodyToMono(BankruptResponse.class)
-//                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(500)))
+                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(60000)))
                 .block();
     }
 
 
-    // ------------------------------------------------------------------------
+    //_________________________________________Если возвращать не сущность, а Object________________________________
 //    public Object getSelfEmplByInnTestObject(String service, MultiValueMap paramMap) {
 //
 //        return client.get()
@@ -179,11 +177,11 @@ public class ApiCloudClient {
 //                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(500)))
 //                .block();
 //    }
+
 //    public static void main(String[] args) {
 //
-//        final ApiCloudClient webApiCloudClient = new ApiCloudClient(API_CLOUD_URL);
+//        final ApiCloudClient webApiCloudClient = new ApiCloudClient("http://localhost:8080");
 
- //_________________________________________Если возвращать не сущность, а Object________________________________
 //        MultiValueMap paramMap1 = new LinkedMultiValueMap();
 //        paramMap1.add("type", "npd");
 //        paramMap1.add("inn", "123456789012");

@@ -1,10 +1,10 @@
-package ru.monitoring;
+package ru.monitoring.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import ru.monitoring.apicloudclient.ApiCloudClient;
+import ru.monitoring.api_cloud_client.ApiCloudClient;
 import ru.monitoring.dto.fedres_banckrupt.BankruptResponse;
 import ru.monitoring.dto.fssp.FsspResponse;
 import ru.monitoring.dto.gibdd.GibddResponse;
@@ -12,15 +12,48 @@ import ru.monitoring.dto.mvd.PassportCheckResponse;
 import ru.monitoring.dto.nalog.InnResponse;
 import ru.monitoring.dto.nalog.SelfEmplResponse;
 import ru.monitoring.dto.rosfinmon.RosFinMonResponse;
+import ru.monitoring.model.Report;
 
 import static ru.monitoring.utils.Constants.API_CLOUD_TOKEN;
-import static ru.monitoring.utils.Constants.API_CLOUD_URL;
 
 @AllArgsConstructor
 @Service
-public class ApiCloudRequestService {
+public class SupplierRequestService {
 
     private final ApiCloudClient apiCloudClient;
+
+    public Report getReport(String lastname, String firstname, String secondname, String birthdate, String passportSeria,
+                            String passportNomer, String driverIdSeriaNomer, String driverIdDate) {
+
+        FsspResponse fsspResponse = getEnfProcessingsCheck(lastname, firstname, secondname, birthdate);
+
+        String serianomer = passportSeria.trim() + passportNomer.trim();
+        InnResponse innResponse = getInnCheck(firstname, lastname, secondname, birthdate, serianomer);
+
+        String inn = innResponse.getInn();
+        SelfEmplResponse selfEmplResponse = getSelfEmplCheck(inn);
+
+        PassportCheckResponse passportCheckResponse = getPassportCheck(passportSeria, passportNomer);
+
+        GibddResponse gibddResponse = getDriverIdCheck(driverIdSeriaNomer, driverIdDate);
+
+        String name = secondname != null ? lastname.toUpperCase() + " " + firstname.toUpperCase() + " " + secondname :
+                lastname.toUpperCase() + " " + firstname.toUpperCase();
+
+        RosFinMonResponse rosFinMonResponse = getTerrorExtrCheck(name);
+
+        BankruptResponse bankruptResponse = getBankruptCheck(inn);
+
+        return ReportBuilder.builder()
+                .addFsspResponse(fsspResponse)
+                .addInnResponse(innResponse)
+                .addSelfEmplResponse(selfEmplResponse)
+                .addPassportCheckResponse(passportCheckResponse)
+                .addGibddResponse(gibddResponse)
+                .addRosFinMonResponse(rosFinMonResponse)
+                .addBankruptResponse(bankruptResponse)
+                .build();
+    }
 
     private FsspResponse getEnfProcessingsCheck(String lastname, String firstname, String secondname, String birthdate) {
         MultiValueMap paramMap = new LinkedMultiValueMap();
@@ -140,8 +173,8 @@ public class ApiCloudRequestService {
 
     public static void main(String[] args) {
 
-        ApiCloudClient apiCloudClient = new ApiCloudClient(API_CLOUD_URL);
-        ApiCloudRequestService apiCloudRequestService = new ApiCloudRequestService(apiCloudClient);
+        ApiCloudClient apiCloudClient = new ApiCloudClient("http://localhost:8080");
+        SupplierRequestService supplierRequestService = new SupplierRequestService(apiCloudClient);
         String lastname = "Иванов";
         String firstname = "Иван";
         String secondname = "Иванович";
@@ -151,7 +184,7 @@ public class ApiCloudRequestService {
         String driverIdSeriaNomer = "1234567890";
         String driverIdDate = "07.11.2014";
 
-        apiCloudRequestService.printResult(lastname, firstname, secondname, birthdate, passportSeria, passportNomer, driverIdSeriaNomer,
+        supplierRequestService.printResult(lastname, firstname, secondname, birthdate, passportSeria, passportNomer, driverIdSeriaNomer,
                 driverIdDate);
     }
 }

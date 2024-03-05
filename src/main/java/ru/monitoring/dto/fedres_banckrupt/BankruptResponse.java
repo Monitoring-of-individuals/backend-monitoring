@@ -16,7 +16,7 @@ public class BankruptResponse {
     private List<Rez> rez;
     private Inquiry inquiry;
     // В случае если не нашли
-    private int num; // Количество найденных записей
+    private Integer num; // Количество найденных записей
     private String message;
     // В случае если TIME_MAX_CONNECT - Достигнуто максимальное количество коннектов, при которых ресурс не вернул результата
     private String error;
