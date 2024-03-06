@@ -9,11 +9,12 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
-import reactor.util.retry.Retry;
 import ru.monitoring.dto.fedres_banckrupt.BankruptResponse;
 import ru.monitoring.dto.fssp.FsspResponse;
 import ru.monitoring.dto.gibdd.GibddResponse;
@@ -25,11 +26,27 @@ import ru.monitoring.exceptions.ClentError4xxException;
 import ru.monitoring.exceptions.ServerError5xxException;
 
 import java.time.Duration;
+import java.util.LinkedHashMap;
 import java.util.concurrent.TimeUnit;
 
-import static ru.monitoring.utils.Constants.RETRY_TIMEOUT;
 import static ru.monitoring.utils.Constants.TIMEOUT;
 
+/**
+ * Как отлавливать ошибки соединения.
+ *
+ * Пока предлагается такой способ:
+ * <blockquote><pre>
+ * try {
+ *             SelfEmplResponse result = webApiCloudClient.
+ *             getSelfEmplByInnTestObject("/nalog.php", paramMap1);
+ *             System.out.println("Вот такой результат: " + result);
+ *         } catch (ClentError4xxException | ServerError5xxException e) {
+ *             System.out.println("ВОТ И ОШИБКА");
+ *         } catch (WebClientRequestException e) {
+ *             System.out.println("Достучаться не получилось");
+ *         }
+ *</pre></blockquote>
+ */
 
 @Service
 public class ApiCloudClient {
@@ -62,7 +79,6 @@ public class ApiCloudClient {
                 .onStatus(HttpStatusCode::is4xxClientError, error -> Mono.error(new ClentError4xxException("CLIENT PROBLEMS")))
                 .onStatus(HttpStatusCode::is5xxServerError, error -> Mono.error(new ServerError5xxException("SUPPLIER SERVER PROBLEMS")))
                 .bodyToMono(FsspResponse.class)
-                .retryWhen(Retry.fixedDelay(1, Duration.ofMillis(RETRY_TIMEOUT)))
                 .block();
     }
 
@@ -81,7 +97,6 @@ public class ApiCloudClient {
                 .onStatus(HttpStatusCode::is4xxClientError, error -> Mono.error(new ClentError4xxException("CLIENT PROBLEMS")))
                 .onStatus(HttpStatusCode::is5xxServerError, error -> Mono.error(new ServerError5xxException("SUPPLIER SERVER PROBLEMS")))
                 .bodyToMono(InnResponse.class)
-                .retryWhen(Retry.fixedDelay(1, Duration.ofMillis(RETRY_TIMEOUT)))
                 .block();
     }
 
@@ -100,7 +115,6 @@ public class ApiCloudClient {
                 .onStatus(HttpStatusCode::is4xxClientError, error -> Mono.error(new ClentError4xxException("CLIENT PROBLEMS")))
                 .onStatus(HttpStatusCode::is5xxServerError, error -> Mono.error(new ServerError5xxException("SUPPLIER SERVER PROBLEMS")))
                 .bodyToMono(SelfEmplResponse.class)
-                .retryWhen(Retry.fixedDelay(1, Duration.ofMillis(RETRY_TIMEOUT)))
                 .block();
     }
 
@@ -119,7 +133,6 @@ public class ApiCloudClient {
                 .onStatus(HttpStatusCode::is4xxClientError, error -> Mono.error(new ClentError4xxException("CLIENT PROBLEMS")))
                 .onStatus(HttpStatusCode::is5xxServerError, error -> Mono.error(new ServerError5xxException("SUPPLIER SERVER PROBLEMS")))
                 .bodyToMono(PassportCheckResponse.class)
-                .retryWhen(Retry.fixedDelay(1, Duration.ofMillis(RETRY_TIMEOUT)))
                 .block();
     }
 
@@ -137,7 +150,6 @@ public class ApiCloudClient {
                 .onStatus(HttpStatusCode::is4xxClientError, error -> Mono.error(new ClentError4xxException("CLIENT PROBLEMS")))
                 .onStatus(HttpStatusCode::is5xxServerError, error -> Mono.error(new ServerError5xxException("SUPPLIER SERVER PROBLEMS")))
                 .bodyToMono(GibddResponse.class)
-                .retryWhen(Retry.fixedDelay(1, Duration.ofMillis(RETRY_TIMEOUT)))
                 .block();
     }
 
@@ -155,7 +167,6 @@ public class ApiCloudClient {
                 .onStatus(HttpStatusCode::is4xxClientError, error -> Mono.error(new ClentError4xxException("CLIENT PROBLEMS")))
                 .onStatus(HttpStatusCode::is5xxServerError, error -> Mono.error(new ServerError5xxException("SUPPLIER SERVER PROBLEMS")))
                 .bodyToMono(RosFinMonResponse.class)
-                .retryWhen(Retry.fixedDelay(1, Duration.ofMillis(RETRY_TIMEOUT)))
                 .block();
     }
 
@@ -173,44 +184,46 @@ public class ApiCloudClient {
                 .onStatus(HttpStatusCode::is4xxClientError, error -> Mono.error(new ClentError4xxException("CLIENT PROBLEMS")))
                 .onStatus(HttpStatusCode::is5xxServerError, error -> Mono.error(new ServerError5xxException("SUPPLIER SERVER PROBLEMS")))
                 .bodyToMono(BankruptResponse.class)
-                .retryWhen(Retry.fixedDelay(1, Duration.ofMillis(RETRY_TIMEOUT)))
                 .block();
     }
 
 
 //    _________________________________________Если возвращать не сущность, а Object________________________________
-//    public Object getSelfEmplByInnTestObject(String service, MultiValueMap paramMap) {
-//
-//        return client.method(HttpMethod.GET)
-//                .uri(uriBuilder -> uriBuilder
-//                        .path("/ap")
-//                        .path(service) // /nalog.php
-//                        .queryParams(paramMap)
-//                        .build())
-//                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-//                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-//                .retrieve()
-////                .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.empty())
-//                .onStatus(HttpStatusCode::is5xxServerError, error -> Mono.empty())
-////                .onStatus(HttpStatusCode::is4xxClientError, error -> Mono.error(new ClentError4xxException("SUPPLIER SERVER PROBLEMS")))
-////                .onStatus(HttpStatusCode::is5xxServerError, error -> Mono.error(new ServerError5xxException("SUPPLIER SERVER PROBLEMS")))
-//                .bodyToMono(Object.class)
-////                .retryWhen(Retry.fixedDelay(1, Duration.ofMillis(500)))
-//                .block();
-//    }
+    public SelfEmplResponse getSelfEmplByInnTestObject(String service, MultiValueMap paramMap) {
 
-//    public static void main(String[] args) {
-//
-//        final ApiCloudClient webApiCloudClient = new ApiCloudClient("http://localhost:8080");
-//
-//        MultiValueMap paramMap1 = new LinkedMultiValueMap();
-//        paramMap1.add("type", "npd");
-//        paramMap1.add("inn", "123456789012");
-//        paramMap1.add("token", "53ba1b7a55abbа14aa97eff3a5220792");
-//
-//        SelfEmplResponse result = webApiCloudClient.getSelfEmplByInnTestObject("/nalog.php", paramMap1);
-//        System.out.println("Вот такой результат: " + result);
+        return client.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/api")
+                        .path(service) // /nalog.php
+                        .queryParams(paramMap)
+                        .build())
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, error -> Mono.error(new ClentError4xxException("CLIENT PROBLEMS")))
+                .onStatus(HttpStatusCode::is5xxServerError, error -> Mono.error(new ServerError5xxException("SUPPLIER SERVER PROBLEMS")))
+                .bodyToMono(SelfEmplResponse.class)
+                .block();
+    }
 
+    public static void main(String[] args) {
+
+        final ApiCloudClient webApiCloudClient = new ApiCloudClient("http://localhost:8080");
+
+        MultiValueMap paramMap1 = new LinkedMultiValueMap();
+        paramMap1.add("type", "npd");
+        paramMap1.add("inn", "123456789012");
+        paramMap1.add("token", "53ba1b7a55abbа14aa97eff3a5220792");
+
+        try {
+            SelfEmplResponse result = webApiCloudClient.getSelfEmplByInnTestObject("/nalog.php", paramMap1);
+            System.out.println("Вот такой результат: " + result);
+        } catch (ClentError4xxException | ServerError5xxException e) {
+            System.out.println("ВОТ И ОШИБКА");
+        } catch (WebClientRequestException e) {
+            System.out.println("Достучаться не получилось");
+        }
+    }
 //        LinkedHashMap result1 = (LinkedHashMap) result;
 //
 //        if (result1.get("status").equals(200)) {
