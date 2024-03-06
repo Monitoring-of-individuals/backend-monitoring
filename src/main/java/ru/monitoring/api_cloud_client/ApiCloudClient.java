@@ -13,6 +13,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 import ru.monitoring.dto.fedres_banckrupt.BankruptResponse;
@@ -31,23 +32,7 @@ import java.util.concurrent.TimeUnit;
 
 import static ru.monitoring.utils.Constants.TIMEOUT;
 
-/**
- * Как отлавливать ошибки соединения.
- *
- * Пока предлагается такой способ:
- * <blockquote><pre>
- * try {
- *             SelfEmplResponse result = webApiCloudClient.
- *             getSelfEmplByInnTestObject("/nalog.php", paramMap1);
- *             System.out.println("Вот такой результат: " + result);
- *         } catch (ClentError4xxException | ServerError5xxException e) {
- *             System.out.println("ВОТ И ОШИБКА");
- *         } catch (WebClientRequestException e) {
- *             System.out.println("Достучаться не получилось");
- *         }
- *</pre></blockquote>
- */
-
+// TODO добавить Логер, поменять ответ при ошибке
 @Service
 public class ApiCloudClient {
     private final WebClient client;
@@ -203,6 +188,22 @@ public class ApiCloudClient {
                 .onStatus(HttpStatusCode::is4xxClientError, error -> Mono.error(new ClentError4xxException("CLIENT PROBLEMS")))
                 .onStatus(HttpStatusCode::is5xxServerError, error -> Mono.error(new ServerError5xxException("SUPPLIER SERVER PROBLEMS")))
                 .bodyToMono(SelfEmplResponse.class)
+                .doOnError(error -> {
+                    if (error instanceof ServerError5xxException) { // можно заменить на instance of
+                        System.out.println("Вот такая ServerError5xxException : " + error.getMessage());
+                    } else if (error instanceof WebClientRequestException) {
+                        System.out.println(error.getCause());
+                        System.out.println("Вот такая WebClientRequestException : " + error.getMessage());
+                    }
+                })
+//                .onErrorResume(error -> Mono.just(new SelfEmplResponse()))
+//                .onErrorResume(WebClientResponseException.class,
+//                        ex -> ex.getRawStatusCode() == 500 ? Mono.empty() : Mono.error(ex))
+//                .onErrorResume(error -> Mono.empty())
+                .onErrorResume(WebClientRequestException.class,
+                        ex -> Mono.empty())
+                .onErrorResume(ServerError5xxException.class,
+                        ex -> Mono.just(new SelfEmplResponse()))
                 .block();
     }
 
