@@ -9,6 +9,7 @@ import ru.monitoring.dto.nalog.InnResponse;
 import ru.monitoring.dto.nalog.SelfEmplResponse;
 import ru.monitoring.dto.rosfinmon.RosFinMonResponse;
 
+// Предварительный вид. Требует доработки.
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter

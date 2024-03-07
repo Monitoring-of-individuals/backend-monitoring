@@ -1,21 +1,20 @@
-package ru.monitoring.api_cloud_client;
+package ru.monitoring.clients;
 
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientRequestException;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
+import reactor.util.retry.Retry;
 import ru.monitoring.dto.fedres_banckrupt.BankruptResponse;
 import ru.monitoring.dto.fssp.FsspResponse;
 import ru.monitoring.dto.gibdd.GibddResponse;
@@ -27,12 +26,11 @@ import ru.monitoring.exceptions.ClentError4xxException;
 import ru.monitoring.exceptions.ServerError5xxException;
 
 import java.time.Duration;
-import java.util.LinkedHashMap;
 import java.util.concurrent.TimeUnit;
 
 import static ru.monitoring.utils.Constants.TIMEOUT;
 
-// TODO добавить Логер, поменять ответ при ошибке
+@Slf4j
 @Service
 public class ApiCloudClient {
     private final WebClient client;
@@ -61,9 +59,18 @@ public class ApiCloudClient {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError, error -> Mono.error(new ClentError4xxException("CLIENT PROBLEMS")))
-                .onStatus(HttpStatusCode::is5xxServerError, error -> Mono.error(new ServerError5xxException("SUPPLIER SERVER PROBLEMS")))
+                .onStatus(HttpStatusCode::is4xxClientError, error -> Mono.error(new ClentError4xxException(error.getClass().toString())))
+                .onStatus(HttpStatusCode::is5xxServerError, error -> Mono.error(new ServerError5xxException(error.getClass().toString())))
                 .bodyToMono(FsspResponse.class)
+                .doOnError(error -> {
+                    log.error("Произошла ошибка: {}, подробности: {}, стэктрейс: {}", error.getClass(), error.getMessage(), error.getStackTrace());
+                })
+                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(1000)))
+                .doOnError(error -> {
+                    log.error("Произошла ошибка: {}, с сообщением: {}, причина: {}, стэктрейс: {}", error.getClass(),
+                            error.getMessage(), error.getCause(), error.getStackTrace());
+                })
+                .onErrorResume(ex -> Mono.empty())
                 .block();
     }
 
@@ -79,9 +86,18 @@ public class ApiCloudClient {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError, error -> Mono.error(new ClentError4xxException("CLIENT PROBLEMS")))
-                .onStatus(HttpStatusCode::is5xxServerError, error -> Mono.error(new ServerError5xxException("SUPPLIER SERVER PROBLEMS")))
+                .onStatus(HttpStatusCode::is4xxClientError, error -> Mono.error(new ClentError4xxException(error.getClass().toString())))
+                .onStatus(HttpStatusCode::is5xxServerError, error -> Mono.error(new ServerError5xxException(error.getClass().toString())))
                 .bodyToMono(InnResponse.class)
+                .doOnError(error -> {
+                    log.error("Произошла ошибка: {}, подробности: {}, стэктрейс: {}", error.getClass(), error.getMessage(), error.getStackTrace());
+                })
+                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(1000)))
+                .doOnError(error -> {
+                    log.error("Произошла ошибка: {}, с сообщением: {}, причина: {}, стэктрейс: {}", error.getClass(),
+                            error.getMessage(), error.getCause(), error.getStackTrace());
+                })
+                .onErrorResume(ex -> Mono.empty())
                 .block();
     }
 
@@ -97,9 +113,18 @@ public class ApiCloudClient {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError, error -> Mono.error(new ClentError4xxException("CLIENT PROBLEMS")))
-                .onStatus(HttpStatusCode::is5xxServerError, error -> Mono.error(new ServerError5xxException("SUPPLIER SERVER PROBLEMS")))
+                .onStatus(HttpStatusCode::is4xxClientError, error -> Mono.error(new ClentError4xxException(error.getClass().toString())))
+                .onStatus(HttpStatusCode::is5xxServerError, error -> Mono.error(new ServerError5xxException(error.getClass().toString())))
                 .bodyToMono(SelfEmplResponse.class)
+                .doOnError(error -> {
+                    log.error("Произошла ошибка: {}, подробности: {}, стэктрейс: {}", error.getClass(), error.getMessage(), error.getStackTrace());
+                })
+                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(1000)))
+                .doOnError(error -> {
+                    log.error("Произошла ошибка: {}, с сообщением: {}, причина: {}, стэктрейс: {}", error.getClass(),
+                            error.getMessage(), error.getCause(), error.getStackTrace());
+                })
+                .onErrorResume(ex -> Mono.empty())
                 .block();
     }
 
@@ -115,9 +140,18 @@ public class ApiCloudClient {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError, error -> Mono.error(new ClentError4xxException("CLIENT PROBLEMS")))
-                .onStatus(HttpStatusCode::is5xxServerError, error -> Mono.error(new ServerError5xxException("SUPPLIER SERVER PROBLEMS")))
+                .onStatus(HttpStatusCode::is4xxClientError, error -> Mono.error(new ClentError4xxException(error.getClass().toString())))
+                .onStatus(HttpStatusCode::is5xxServerError, error -> Mono.error(new ServerError5xxException(error.getClass().toString())))
                 .bodyToMono(PassportCheckResponse.class)
+                .doOnError(error -> {
+                    log.error("Произошла ошибка: {}, подробности: {}, стэктрейс: {}", error.getClass(), error.getMessage(), error.getStackTrace());
+                })
+                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(1000)))
+                .doOnError(error -> {
+                    log.error("Произошла ошибка: {}, с сообщением: {}, причина: {}, стэктрейс: {}", error.getClass(),
+                            error.getMessage(), error.getCause(), error.getStackTrace());
+                })
+                .onErrorResume(ex -> Mono.empty())
                 .block();
     }
 
@@ -132,9 +166,18 @@ public class ApiCloudClient {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError, error -> Mono.error(new ClentError4xxException("CLIENT PROBLEMS")))
-                .onStatus(HttpStatusCode::is5xxServerError, error -> Mono.error(new ServerError5xxException("SUPPLIER SERVER PROBLEMS")))
+                .onStatus(HttpStatusCode::is4xxClientError, error -> Mono.error(new ClentError4xxException(error.getClass().toString())))
+                .onStatus(HttpStatusCode::is5xxServerError, error -> Mono.error(new ServerError5xxException(error.getClass().toString())))
                 .bodyToMono(GibddResponse.class)
+                .doOnError(error -> {
+                    log.error("Произошла ошибка: {}, подробности: {}, стэктрейс: {}", error.getClass(), error.getMessage(), error.getStackTrace());
+                })
+                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(1000)))
+                .doOnError(error -> {
+                    log.error("Произошла ошибка: {}, с сообщением: {}, причина: {}, стэктрейс: {}", error.getClass(),
+                            error.getMessage(), error.getCause(), error.getStackTrace());
+                })
+                .onErrorResume(ex -> Mono.empty())
                 .block();
     }
 
@@ -149,12 +192,22 @@ public class ApiCloudClient {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError, error -> Mono.error(new ClentError4xxException("CLIENT PROBLEMS")))
-                .onStatus(HttpStatusCode::is5xxServerError, error -> Mono.error(new ServerError5xxException("SUPPLIER SERVER PROBLEMS")))
+                .onStatus(HttpStatusCode::is4xxClientError, error -> Mono.error(new ClentError4xxException(error.getClass().toString())))
+                .onStatus(HttpStatusCode::is5xxServerError, error -> Mono.error(new ServerError5xxException(error.getClass().toString())))
                 .bodyToMono(RosFinMonResponse.class)
+                .doOnError(error -> {
+                    log.error("Произошла ошибка: {}, подробности: {}, стэктрейс: {}", error.getClass(), error.getMessage(), error.getStackTrace());
+                })
+                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(1000)))
+                .doOnError(error -> {
+                    log.error("Произошла ошибка: {}, с сообщением: {}, причина: {}, стэктрейс: {}", error.getClass(),
+                            error.getMessage(), error.getCause(), error.getStackTrace());
+                })
+                .onErrorResume(ex -> Mono.empty())
                 .block();
     }
 
+    //http://localhost:8080/api/bankrot.php?type=searchString&string=123456789012&legalStatus=fiz&token=53ba1b7a55abbа14aa97eff3a5220792
     public BankruptResponse getBankruptCheck(String service, MultiValueMap paramMap) {
 
         return client.get()
@@ -166,71 +219,18 @@ public class ApiCloudClient {
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError, error -> Mono.error(new ClentError4xxException("CLIENT PROBLEMS")))
-                .onStatus(HttpStatusCode::is5xxServerError, error -> Mono.error(new ServerError5xxException("SUPPLIER SERVER PROBLEMS")))
+                .onStatus(HttpStatusCode::is4xxClientError, error -> Mono.error(new ClentError4xxException(error.getClass().toString())))
+                .onStatus(HttpStatusCode::is5xxServerError, error -> Mono.error(new ServerError5xxException(error.getClass().toString())))
                 .bodyToMono(BankruptResponse.class)
-                .block();
-    }
-
-
-//    _________________________________________Если возвращать не сущность, а Object________________________________
-    public SelfEmplResponse getSelfEmplByInnTestObject(String service, MultiValueMap paramMap) {
-
-        return client.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/api")
-                        .path(service) // /nalog.php
-                        .queryParams(paramMap)
-                        .build())
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError, error -> Mono.error(new ClentError4xxException("CLIENT PROBLEMS")))
-                .onStatus(HttpStatusCode::is5xxServerError, error -> Mono.error(new ServerError5xxException("SUPPLIER SERVER PROBLEMS")))
-                .bodyToMono(SelfEmplResponse.class)
                 .doOnError(error -> {
-                    if (error instanceof ServerError5xxException) { // можно заменить на instance of
-                        System.out.println("Вот такая ServerError5xxException : " + error.getMessage());
-                    } else if (error instanceof WebClientRequestException) {
-                        System.out.println(error.getCause());
-                        System.out.println("Вот такая WebClientRequestException : " + error.getMessage());
-                    }
+                    log.error("Произошла ошибка: {}, подробности: {}, стэктрейс: {}", error.getClass(), error.getMessage(), error.getStackTrace());
                 })
-//                .onErrorResume(error -> Mono.just(new SelfEmplResponse()))
-//                .onErrorResume(WebClientResponseException.class,
-//                        ex -> ex.getRawStatusCode() == 500 ? Mono.empty() : Mono.error(ex))
-//                .onErrorResume(error -> Mono.empty())
-                .onErrorResume(WebClientRequestException.class,
-                        ex -> Mono.empty())
-                .onErrorResume(ServerError5xxException.class,
-                        ex -> Mono.just(new SelfEmplResponse()))
+                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(1000)))
+                .doOnError(error -> {
+                    log.error("Произошла ошибка: {}, с сообщением: {}, причина: {}, стэктрейс: {}", error.getClass(),
+                            error.getMessage(), error.getCause(), error.getStackTrace());
+                })
+                .onErrorResume(ex -> Mono.empty())
                 .block();
     }
-
-    public static void main(String[] args) {
-
-        final ApiCloudClient webApiCloudClient = new ApiCloudClient("http://localhost:8080");
-
-        MultiValueMap paramMap1 = new LinkedMultiValueMap();
-        paramMap1.add("type", "npd");
-        paramMap1.add("inn", "123456789012");
-        paramMap1.add("token", "53ba1b7a55abbа14aa97eff3a5220792");
-
-        try {
-            SelfEmplResponse result = webApiCloudClient.getSelfEmplByInnTestObject("/nalog.php", paramMap1);
-            System.out.println("Вот такой результат: " + result);
-        } catch (ClentError4xxException | ServerError5xxException e) {
-            System.out.println("ВОТ И ОШИБКА");
-        } catch (WebClientRequestException e) {
-            System.out.println("Достучаться не получилось");
-        }
-    }
-//        LinkedHashMap result1 = (LinkedHashMap) result;
-//
-//        if (result1.get("status").equals(200)) {
-//            System.out.println("НАШЛИ");
-//        } else if (result1.get("status").equals(404)) {
-//            System.out.println("TIME_MAX_CONNECT");
-//        }
-
 }

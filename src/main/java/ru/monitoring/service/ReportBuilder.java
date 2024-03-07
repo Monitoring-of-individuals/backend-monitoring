@@ -9,6 +9,10 @@ import ru.monitoring.dto.nalog.SelfEmplResponse;
 import ru.monitoring.dto.rosfinmon.RosFinMonResponse;
 import ru.monitoring.model.Report;
 
+/**
+ * Поскольку не все данные, поставляемые поставщиком по каждому запросу необходимо использовать в финальном отчете, то в
+ * будущем необходимо добавить логику обработки отчета, с целью формирования выходного объекта в правильном виде.
+ */
 public final class ReportBuilder {
     private FsspResponse fsspResponse;
     private InnResponse innResponse;

@@ -3,7 +3,6 @@ package ru.monitoring.controllers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.monitoring.model.Report;
 import ru.monitoring.service.SupplierRequestService;
@@ -15,15 +14,9 @@ public class ReportController {
 
     private final SupplierRequestService service;
 
+    // Тестовый эндпоинт, собирающий все ответы от "поставщика"(эмулятора)
     @GetMapping
-    public Report getReport(/*@RequestParam String lastname,
-                            @RequestParam String firstname,
-                            @RequestParam String secondname,
-                            @RequestParam String birthdate,
-                            @RequestParam String passportSeria,
-                            @RequestParam String passportNomer,
-                            @RequestParam String driverIdSeriaNomer,
-                            @RequestParam String driverIdDate*/) {
+    public Report getReport() {
         String lastname = "Иванов";
         String firstname = "Иван";
         String secondname = "Иванович";

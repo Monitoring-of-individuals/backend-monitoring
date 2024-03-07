@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import ru.monitoring.api_cloud_client.ApiCloudClient;
+import ru.monitoring.clients.ApiCloudClient;
 import ru.monitoring.dto.fedres_banckrupt.BankruptResponse;
 import ru.monitoring.dto.fssp.FsspResponse;
 import ru.monitoring.dto.gibdd.GibddResponse;
@@ -22,6 +22,12 @@ public class SupplierRequestService {
 
     private final ApiCloudClient apiCloudClient;
 
+
+    /** Тут пока нет логики обработки входящих ошибок от поставщика (они приходят в теле ответа со статустом 200),
+     *  пустых ответов (значит, что по какой-то причине запрос поставщику все же вернул код 5хх или 4хх или произошла
+     * ошибка соединения или ошибка по timeout).
+     * Пока данный метод носит демонстрационный характер.
+     * */
     public Report getReport(String lastname, String firstname, String secondname, String birthdate, String passportSeria,
                             String passportNomer, String driverIdSeriaNomer, String driverIdDate) {
 
@@ -130,61 +136,5 @@ public class SupplierRequestService {
         paramMap.add("legalStatus", "fiz");
         paramMap.add("token", API_CLOUD_TOKEN);
         return apiCloudClient.getBankruptCheck("/bankrot.php", paramMap);
-    }
-
-    // ____________________________ Методы отладки _________________________________________
-
-    public void printResult(String lastname, String firstname, String secondname, String birthdate, String passportSeria,
-                            String passportNomer, String driverIdSeriaNomer, String driverIdDate) {
-
-        FsspResponse fsspResponse = getEnfProcessingsCheck(lastname, firstname, secondname, birthdate);
-
-        String serianomer = passportSeria.trim() + passportNomer.trim();
-        InnResponse innResponse = getInnCheck(firstname, lastname, secondname, birthdate, serianomer);
-
-        String inn = innResponse.getInn();
-        SelfEmplResponse selfEmplResponse = getSelfEmplCheck(inn);
-
-        PassportCheckResponse passportCheckResponse = getPassportCheck(passportSeria, passportNomer);
-
-        GibddResponse gibddResponse = getDriverIdCheck(driverIdSeriaNomer, driverIdDate);
-
-        String name = secondname != null ? lastname.toUpperCase() + " " + firstname.toUpperCase() + " " + secondname :
-                lastname.toUpperCase() + " " + firstname.toUpperCase();
-
-        RosFinMonResponse rosFinMonResponse = getTerrorExtrCheck(name);
-
-        BankruptResponse bankruptResponse = getBankruptCheck(inn);
-
-        System.out.println(fsspResponse);
-        System.out.println();
-        System.out.println(innResponse);
-        System.out.println();
-        System.out.println(selfEmplResponse);
-        System.out.println();
-        System.out.println(passportCheckResponse);
-        System.out.println();
-        System.out.println(gibddResponse);
-        System.out.println();
-        System.out.println(rosFinMonResponse);
-        System.out.println();
-        System.out.println(bankruptResponse);
-    }
-
-    public static void main(String[] args) {
-
-        ApiCloudClient apiCloudClient = new ApiCloudClient("http://localhost:8080");
-        SupplierRequestService supplierRequestService = new SupplierRequestService(apiCloudClient);
-        String lastname = "Иванов";
-        String firstname = "Иван";
-        String secondname = "Иванович";
-        String birthdate = "31.03.1995";
-        String passportSeria = "1234";
-        String passportNomer = "567890";
-        String driverIdSeriaNomer = "1234567890";
-        String driverIdDate = "07.11.2014";
-
-        supplierRequestService.printResult(lastname, firstname, secondname, birthdate, passportSeria, passportNomer, driverIdSeriaNomer,
-                driverIdDate);
     }
 }

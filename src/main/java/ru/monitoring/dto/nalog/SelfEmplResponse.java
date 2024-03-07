@@ -3,8 +3,6 @@ package ru.monitoring.dto.nalog;
 import lombok.*;
 import ru.monitoring.dto.Inquiry;
 
-import java.time.LocalDate;
-
 @Getter
 @Setter
 @NoArgsConstructor
