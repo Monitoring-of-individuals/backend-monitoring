@@ -1,0 +1,22 @@
+spring:
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQL10Dialect
+        format_sql: true
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+  sql:
+    init:
+      mode: always
+  datasource:
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/monitoring
+    username: postgres
+    password: postgres
+
+# App Properties
+token:
+  signing:
+    key: MegaLargeSigningSecretKeyForDemoApplicationMegaLargeSigningSecretKeyForDemoApplication

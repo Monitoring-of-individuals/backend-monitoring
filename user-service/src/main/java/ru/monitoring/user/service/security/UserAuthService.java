@@ -17,7 +17,6 @@ public class UserAuthService {
     }
 
     public User create(User user) {
-
         return userService.save(user);
     }
 
