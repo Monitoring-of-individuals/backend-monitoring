@@ -12,14 +12,24 @@ import ru.monitoring.user.dto.UserResponseDto;
 import ru.monitoring.user.mapper.UserMapper;
 import ru.monitoring.user.model.User;
 
+/**
+ * Сервис аутентификации, отвечающий за регистрацию и вход пользователей.
+ */
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
+
     private final UserAuthService userAuthService;
     private final JwtService jwtService;
     private final UserMapper userMapper;
     private final AuthenticationManager authenticationManager;
 
+    /**
+     * Регистрирует нового пользователя в системе.
+     *
+     * @param signUpUserDto DTO для регистрации нового пользователя.
+     * @return UserResponseDto DTO, содержащий информацию о зарегистрированном пользователе, включая JWT токен.
+     */
     public UserResponseDto signUp(SignUpUserDto signUpUserDto) {
         User user = userMapper.convertSignUpUserDtoToUser(signUpUserDto);
         User returnedUser = userAuthService.create(user);
@@ -29,8 +39,13 @@ public class AuthenticationService {
         return userResponseDto;
     }
 
+    /**
+     * Аутентифицирует пользователя и возвращает JWT токен.
+     *
+     * @param signInUserDto DTO для входа пользователя.
+     * @return JwtResponse Объект ответа, содержащий JWT токен для аутентифицированного пользователя.
+     */
     public JwtResponse signIn(SignInUserDto signInUserDto) {
-
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 signInUserDto.getEmail(),
                 signInUserDto.getPassword()

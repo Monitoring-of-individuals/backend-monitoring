@@ -16,6 +16,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Сервис для работы с JSON Web Token (JWT).
+ * Предоставляет функциональность по генерации, проверке и извлечению информации из JWT.
+ */
 @Service
 public class JwtService {
 

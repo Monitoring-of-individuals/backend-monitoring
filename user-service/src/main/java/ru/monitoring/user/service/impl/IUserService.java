@@ -6,11 +6,10 @@ import ru.monitoring.user.exception.UserAlreadyExistsException;
 import ru.monitoring.user.exception.UserNotFoundException;
 import ru.monitoring.user.model.User;
 import ru.monitoring.user.repository.UserRepository;
-import ru.monitoring.user.service.UserService;
 
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService {
+public class IUserService implements ru.monitoring.user.service.IUserService {
     private final UserRepository userRepository;
 
     public User save(User user) {

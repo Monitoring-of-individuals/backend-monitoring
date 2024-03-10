@@ -19,6 +19,10 @@ import ru.monitoring.user.service.security.UserAuthService;
 
 import java.io.IOException;
 
+/**
+ * Фильтр для аутентификации с использованием JWT (JSON Web Tokens).
+ * Проверяет наличие JWT в запросах и аутентифицирует пользователя при его наличии и валидности.
+ */
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -27,11 +31,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserAuthService userAuthService;
 
-
+    /**
+     * Фильтрует каждый входящий запрос. Извлекает и проверяет JWT.
+     *
+     * @param request     Запрос от клиента.
+     * @param response    Ответ сервера.
+     * @param filterChain Цепочка дальнейших фильтров.
+     */
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
-        // Получаем токен из заголовка
+        // Получение токена из заголовка запроса.
         String authHeader = request.getHeader(HEADER_NAME);
         if (StringUtils.isEmpty(authHeader) || !StringUtils.startsWith(authHeader, BEARER_PREFIX)) {
             filterChain.doFilter(request, response);
@@ -42,6 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String jwt = authHeader.substring(BEARER_PREFIX.length());
         String username = jwtService.extractUserName(jwt);
 
+        // Установка контекста аутентификации, если токен валиден и пользователь еще не аутентифицирован.
         if (StringUtils.isNotEmpty(username) && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userAuthService
                     .userDetailsService()
@@ -62,6 +73,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.setContext(context);
             }
         }
+
+        // Продолжение обработки запроса.
         filterChain.doFilter(request, response);
     }
 }

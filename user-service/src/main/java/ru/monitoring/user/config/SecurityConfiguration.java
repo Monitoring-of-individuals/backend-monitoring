@@ -24,19 +24,29 @@ import static jakarta.servlet.DispatcherType.ERROR;
 import static jakarta.servlet.DispatcherType.FORWARD;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
+/**
+ * Конфигурация безопасности для Spring Security.
+ * Включает в себя настройку CORS, аутентификации, доступа к эндпоинтам и сессий.
+ */
 @Configuration
-@EnableWebSecurity
-@EnableMethodSecurity
+@EnableWebSecurity // Включение поддержки безопасности веб-секции.
+@EnableMethodSecurity // Включение аннотаций для методов безопасности.
 @RequiredArgsConstructor
 public class SecurityConfiguration {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserAuthService userAuthService;
 
+    /**
+     * Определяет основную цепочку фильтров безопасности.
+     *
+     * @param http Конфигуратор безопасности HTTP.
+     * @return сконфигурированная цепочка фильтров безопасности.
+     * @throws Exception исключение в случае ошибок конфигурации.
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http.csrf(AbstractHttpConfigurer::disable)
-                // Своего рода отключение CORS (разрешение запросов со всех доменов)
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration corsConfiguration = new CorsConfiguration();
                     corsConfiguration.setAllowedOriginPatterns(List.of("*"));
@@ -45,25 +55,33 @@ public class SecurityConfiguration {
                     corsConfiguration.setAllowCredentials(true);
                     return corsConfiguration;
                 }))
-                // Настройка доступа к конечным точкам
                 .authorizeHttpRequests(request -> request
-                        // Можно указать конкретный путь, * - 1 уровень вложенности, ** - любое количество уровней вложенности
                         .dispatcherTypeMatchers(FORWARD, ERROR).permitAll()
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/swagger-resources/*", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/endpoint", "/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/auth/**", "/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 
+    /**
+     * Создает бин кодировщика паролей.
+     *
+     * @return объект кодировщика паролей.
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * Создает провайдер аутентификации для управления процессом аутентификации.
+     *
+     * @return объект провайдера аутентификации.
+     */
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -72,6 +90,13 @@ public class SecurityConfiguration {
         return authProvider;
     }
 
+    /**
+     * Создает менеджер аутентификации для обработки проверки подлинности.
+     *
+     * @param config Конфигурация аутентификации.
+     * @return объект менеджера аутентификации.
+     * @throws Exception исключение в случае ошибок конфигурации.
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
