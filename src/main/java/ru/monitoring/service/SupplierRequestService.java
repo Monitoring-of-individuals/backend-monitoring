@@ -5,14 +5,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import ru.monitoring.clients.ApiCloudClient;
+import ru.monitoring.dto.ResponseDto;
 import ru.monitoring.dto.fedres_banckrupt.BankruptResponse;
 import ru.monitoring.dto.fssp.FsspResponse;
 import ru.monitoring.dto.gibdd.GibddResponse;
 import ru.monitoring.dto.mvd.PassportCheckResponse;
 import ru.monitoring.dto.nalog.InnResponse;
 import ru.monitoring.dto.nalog.SelfEmplResponse;
+import ru.monitoring.dto.rosfinmon.Result;
 import ru.monitoring.dto.rosfinmon.RosFinMonResponse;
 import ru.monitoring.model.Report;
+
+import java.util.List;
 
 import static ru.monitoring.utils.Constants.API_CLOUD_TOKEN;
 
@@ -48,6 +52,8 @@ public class SupplierRequestService {
 
         RosFinMonResponse rosFinMonResponse = getTerrorExtrCheck(name);
 
+        checkingEqualityBirthDate(rosFinMonResponse, birthdate);
+
         BankruptResponse bankruptResponse = getBankruptCheck(inn);
 
         return ReportBuilder.builder()
@@ -59,6 +65,45 @@ public class SupplierRequestService {
                 .addRosFinMonResponse(rosFinMonResponse)
                 .addBankruptResponse(bankruptResponse)
                 .build();
+    }
+
+    /* Проверка на соответствие проверяемому из списка результатов по признакам физ. лицо и дата рождения,
+     т.к. сервис, запрашивающий данные из Росфинмониторинга, использует в параметрах только имя
+     (Строка поиска (ФИО / Название организации))*/
+    private void checkingEqualityBirthDate(RosFinMonResponse rosFinMonResponse, String birthDay) {
+        if (rosFinMonResponse.getFound()) { // если найден результат будет true
+
+            List<Result> results = rosFinMonResponse.getResult().stream()
+                    .filter(result -> result.getType().equals("fiz")) // фильтр для выбора только физ лиц.
+                    .filter(result -> result.getBirth().equals(birthDay)) // и проверяем на совпадение дат
+                    .toList();
+
+            if (results.isEmpty()) { // если список окажется пустым
+                rosFinMonResponse.setFound(false); // указываем, что ничего не найдено
+                rosFinMonResponse.setCount(0);
+            }
+
+            rosFinMonResponse.setResult(results);
+        }
+    }
+
+
+    // Проверяем, что сервис вернул ответ с ошибкой, но со статусом 200 или вернул пустой ошибку со статусом 4хх
+    // (надо добавить в клиента возвращение ответа со значением переменных null).
+    private ResponseDto checkingIfStatusNot200(ResponseDto dto) {
+        if (dto.getStatus() == null) {
+            dto.setStatus(500); // какой статус возвращать?
+            dto.setMessage("Сервис вернул ошибку. " + dto.getMessage() + " Запрос не был выполнен.");
+            return dto;
+        }
+        if ( dto.getError() != null) {
+            ResponseDto newDto = new ResponseDto();
+            newDto.setStatus(dto.getError());
+            newDto.setMessage("Сервис вернул ошибку. " + dto.getMessage() + " Запрос не был выполнен.");
+            return newDto;
+        }
+
+        return dto;
     }
 
     private FsspResponse getEnfProcessingsCheck(String lastname, String firstname, String secondname, String birthdate) {
