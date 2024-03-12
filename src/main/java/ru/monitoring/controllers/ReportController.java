@@ -31,7 +31,7 @@ public class ReportController {
         String trimmedFirstname = firstname.trim();
         String trimmedLastname = lastname.trim();
         if (trimmedFirstname.equalsIgnoreCase(trimmedLastname)) {
-            throw new ValidateException("Фамилия: " + trimmedLastname + " и Имя: " + trimmedFirstname + " должны различаться");
+            throw new ValidateException("Фамилия " + trimmedLastname + " и Имя " + trimmedFirstname + " должны различаться");
         }
     }
 
@@ -68,12 +68,12 @@ public class ReportController {
                                    // по этим 2 параметрам серия и номер паспорта уточнить и объединить
                                    @RequestParam @Size (min = 4, max = 4,
                                            message = "В параметре Серия паспорта не должно быть больше или меньше 4 цифр")
-                                   @Pattern(regexp = "[0-9]*", message = "В переменной присутствуют запрещенные символы." +
+                                   @Pattern(regexp = "[0-9]*", message = "В параметре Серия паспорта присутствуют запрещенные символы." +
                                            " Разрешено: цифры без пробелов")
                                        String passportSeriya,
                                    @RequestParam @Size (min = 6, max = 6,
                                            message = "В параметре номер паспорта не должно быть больше или меньше 6 цифр")
-                                   @Pattern(regexp = "[0-9]*", message = "В переменной присутствуют запрещенные символы." +
+                                   @Pattern(regexp = "[0-9]*", message = "В параметре номер паспорта присутствуют запрещенные символы." +
                                            " Разрешено: цифры без пробелов")
                                        String passportNomer,
                                    @RequestParam @Size (min = 10, max = 10, message = "В параметре Водительское удостоверение" +
