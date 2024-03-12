@@ -1,11 +1,13 @@
 package ru.monitoring.service;
 
+import com.alibaba.fastjson2.JSON;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import ru.monitoring.clients.ApiCloudClient;
 import ru.monitoring.dto.ResponseDto;
+import ru.monitoring.dto.PersonIfoDto;
 import ru.monitoring.dto.fedres_banckrupt.BankruptResponse;
 import ru.monitoring.dto.fssp.FsspResponse;
 import ru.monitoring.dto.gibdd.GibddResponse;
@@ -27,34 +29,39 @@ public class SupplierRequestService {
     private final ApiCloudClient apiCloudClient;
 
 
-    /** Тут пока нет логики обработки входящих ошибок от поставщика (они приходят в теле ответа со статустом 200),
-     *  пустых ответов (значит, что по какой-то причине запрос поставщику все же вернул код 5хх или 4хх или произошла
-     * ошибка соединения или ошибка по timeout).
-     * Пока данный метод носит демонстрационный характер.
-     * */
-    public Report getReport(String lastname, String firstname, String secondname, String birthdate, String passportSeria,
-                            String passportNomer, String driverIdSeriaNomer, String driverIdDate) {
+    /**
+     * Если поставщик не смог связаться получить какой-то ответ от федеральной службы, произошла ошибка в запросе
+     * поставщику, например, в ФИО указаны недопустимые символы, токен не прошел проверку, кончились деньки и т.д.,
+     * поставщик вернет сообщение с кодом 200, в теле JSON объекта будет указан статус ошибки по номенклатуре поставщика
+     * - см. сайт www.api-cloud.ru), и текстовое сообщение об ошибке.<p>
+     * Если в запросе от клиента на ресурс поставщика допущена ошибка в URL, произошел разрыв соединения, сайт
+     * поставщика не отвечает более установленного времени, попытки повторных автоматических отправок запросов не
+     * привели к успешному соединению и т.д., то вернется пустая строка.<p>
+     * В случае успешного запроса / ответа от поставщика вернется строка с JSON объектом ответа (в том числе и с
+     * ошибкой по номенклатуре поставщика). <p>
+     * В приватных методах происходит обработка:<p>
+     * - в случае пустой строки возвращается пустой объект соответствующего класса;<p>
+     * - в случае валидного JSON объекта возвращается результат парсинга JSON объекта в объект соответствующего класса<p>
+     * <p>
+     * Дальнейшее развитие класса SupplierRequestService и вспомогательного класса ReportBuilder:<p>
+     * - добавить логику обработки ошибок по номенклатуре поставщика;<p>
+     * - добавить по необходимости логику сборки отчета.<p>
+     */
+    public Report getReport(PersonIfoDto personInfo) {
 
-        FsspResponse fsspResponse = getEnfProcessingsCheck(lastname, firstname, secondname, birthdate);
+        FsspResponse fsspResponse = getEnfProcessingsCheck(personInfo);
 
-        String serianomer = passportSeria.trim() + passportNomer.trim();
-        InnResponse innResponse = getInnCheck(firstname, lastname, secondname, birthdate, serianomer);
+        InnResponse innResponse = getInnCheck(personInfo);
 
-        String inn = innResponse.getInn();
-        SelfEmplResponse selfEmplResponse = getSelfEmplCheck(inn);
+        SelfEmplResponse selfEmplResponse = getSelfEmplCheck(innResponse);
 
-        PassportCheckResponse passportCheckResponse = getPassportCheck(passportSeria, passportNomer);
+        PassportCheckResponse passportCheckResponse = getPassportCheck(personInfo);
 
-        GibddResponse gibddResponse = getDriverIdCheck(driverIdSeriaNomer, driverIdDate);
+        GibddResponse gibddResponse = getDriverIdCheck(personInfo);
 
-        String name = secondname != null ? lastname.toUpperCase() + " " + firstname.toUpperCase() + " " + secondname :
-                lastname.toUpperCase() + " " + firstname.toUpperCase();
+        RosFinMonResponse rosFinMonResponse = getTerrorExtrCheck(personInfo);
 
-        RosFinMonResponse rosFinMonResponse = getTerrorExtrCheck(name);
-
-        checkingEqualityBirthDate(rosFinMonResponse, birthdate);
-
-        BankruptResponse bankruptResponse = getBankruptCheck(inn);
+        BankruptResponse bankruptResponse = getBankruptCheck(innResponse);
 
         return ReportBuilder.builder()
                 .addFsspResponse(fsspResponse)
@@ -106,80 +113,100 @@ public class SupplierRequestService {
         return dto;
     }
 
-    private FsspResponse getEnfProcessingsCheck(String lastname, String firstname, String secondname, String birthdate) {
+    /**
+     * Методы формирования запросов, передаваемых в клиент.<p>
+     * Получаемую строку проверяют на соответствие JSON объекту. Если проверка прошла положительно, производит парсинг
+     * и возвращают объект соответствующего класса с данными. <p>
+     * Если клиент вернул null и парсинг невозможен - возвращают пустой объект соответствующего класса<p>
+     */
+
+    private FsspResponse getEnfProcessingsCheck(PersonIfoDto personInfo) {
         MultiValueMap paramMap = new LinkedMultiValueMap();
         paramMap.add("type", "physical");
-        paramMap.add("lastname", lastname);
-        paramMap.add("firstname", firstname);
-        paramMap.add("secondname", secondname);
-        paramMap.add("birthdate", birthdate);
+        paramMap.add("lastname", personInfo.getLastName());
+        paramMap.add("firstname", personInfo.getFirstName());
+        paramMap.add("secondname", personInfo.getSecondName());
+        paramMap.add("birthdate", personInfo.getBirthDate());
         paramMap.add("region", "-1");
         paramMap.add("searchAll", "1");
         paramMap.add("onlyActual", "0"); //TODO проверить - завершенные делопроизводства 0 или 1? И Нужны ли завершенные?
         paramMap.add("token", API_CLOUD_TOKEN);
-        return apiCloudClient.getFsspEnfProcessings("/fssp.php", paramMap);
+        String response = apiCloudClient.getApiCloudResponse("/fssp.php", paramMap);
+        return JSON.isValid(response) ? JSON.parseObject(response, FsspResponse.class) : new FsspResponse();
     }
 
-    private InnResponse getInnCheck(String firstname, String lastname, String secondname, String birthdate, String serianomer) {
+    private InnResponse getInnCheck(PersonIfoDto personInfo) {
+        String seriesNumber = personInfo.getPassportSeries().trim() + personInfo.getPassportNumber().trim();
         MultiValueMap paramMap = new LinkedMultiValueMap();
         paramMap.add("type", "inn");
-        paramMap.add("lastname", lastname);
-        paramMap.add("firstname", firstname);
-        paramMap.add("secondname", secondname);
-        paramMap.add("birthdate", birthdate);
-        paramMap.add("serianomer", serianomer);
+        paramMap.add("lastname", personInfo.getLastName());
+        paramMap.add("firstname", personInfo.getFirstName());
+        paramMap.add("secondname", personInfo.getSecondName());
+        paramMap.add("birthdate", personInfo.getBirthDate());
+        paramMap.add("serianomer", seriesNumber);
         paramMap.add("token", API_CLOUD_TOKEN);
-        return apiCloudClient.getInnByFioAndPassportAndBirthday("/nalog.php", paramMap);
+        String response = apiCloudClient.getApiCloudResponse("/nalog.php", paramMap);
+        return JSON.isValid(response) ? JSON.parseObject(response, InnResponse.class) : new InnResponse();
     }
 
-    private SelfEmplResponse getSelfEmplCheck(String inn) {
-        if (inn == null) {
-            return null;
+    private SelfEmplResponse getSelfEmplCheck(InnResponse inn) {
+        if (inn.getInn() == null) {
+            return new SelfEmplResponse();
         }
         MultiValueMap paramMap = new LinkedMultiValueMap();
         paramMap.add("type", "npd");
         paramMap.add("inn", inn);
         paramMap.add("token", API_CLOUD_TOKEN);
-        return apiCloudClient.getSelfEmplByInn("/nalog.php", paramMap);
+        String response = apiCloudClient.getApiCloudResponse("/nalog.php", paramMap);
+        return JSON.isValid(response) ? JSON.parseObject(response, SelfEmplResponse.class) : new SelfEmplResponse();
     }
 
-    private PassportCheckResponse getPassportCheck(String passportSeria, String passportNomer) {
+    private PassportCheckResponse getPassportCheck(PersonIfoDto personInfo) {
 
         MultiValueMap paramMap = new LinkedMultiValueMap();
         paramMap.add("type", "chekpassport");
-        paramMap.add("seria", passportSeria);
-        paramMap.add("nomer", passportNomer);
+        paramMap.add("seria", personInfo.getPassportSeries());
+        paramMap.add("nomer", personInfo.getPassportNumber());
         paramMap.add("token", API_CLOUD_TOKEN);
-        return apiCloudClient.getPassportCheck("/mvd.php", paramMap);
+        String response = apiCloudClient.getApiCloudResponse("/mvd.php", paramMap);
+        return JSON.isValid(response) ? JSON.parseObject(response, PassportCheckResponse.class) : new PassportCheckResponse();
     }
 
-    private GibddResponse getDriverIdCheck(String driverIdSeriaNomer, String driverIdDate) {
+    private GibddResponse getDriverIdCheck(PersonIfoDto personInfo) {
 
         MultiValueMap paramMap = new LinkedMultiValueMap();
         paramMap.add("type", "driver");
-        paramMap.add("serianomer", driverIdSeriaNomer);
-        paramMap.add("date", driverIdDate);
+        paramMap.add("serianomer", personInfo.getDriverIdSeriesNumber());
+        paramMap.add("date", personInfo.getDriverIdDate());
         paramMap.add("token", API_CLOUD_TOKEN);
-        return apiCloudClient.getDriverIdCheck("/gibdd.php", paramMap);
+        String response = apiCloudClient.getApiCloudResponse("/gibdd.php", paramMap);
+        return JSON.isValid(response) ? JSON.parseObject(response, GibddResponse.class) : new GibddResponse();
     }
 
-    private RosFinMonResponse getTerrorExtrCheck(String fio) {
-        String name = fio.toUpperCase();
+    private RosFinMonResponse getTerrorExtrCheck(PersonIfoDto personInfo) {
+        String name = personInfo.getSecondName() != null ? personInfo.getLastName().toUpperCase() + " " +
+                personInfo.getFirstName().toUpperCase() + " " + personInfo.getSecondName() :
+                personInfo.getLastName().toUpperCase() + " " + personInfo.getFirstName().toUpperCase();
 
         MultiValueMap paramMap = new LinkedMultiValueMap();
         paramMap.add("type", "terextr");
         paramMap.add("search", name);
         paramMap.add("token", API_CLOUD_TOKEN);
-        return apiCloudClient.getTerrorExtrCheck("/fedsfm.php", paramMap);
+        String response = apiCloudClient.getApiCloudResponse("/fedsfm.php", paramMap);
+        return JSON.isValid(response) ? JSON.parseObject(response, RosFinMonResponse.class) : new RosFinMonResponse();
     }
 
-    private BankruptResponse getBankruptCheck(String inn) {
+    private BankruptResponse getBankruptCheck(InnResponse inn) {
+        if (inn.getInn() == null) {
+            return new BankruptResponse();
+        }
 
         MultiValueMap paramMap = new LinkedMultiValueMap();
         paramMap.add("type", "searchString");
         paramMap.add("string", inn);
         paramMap.add("legalStatus", "fiz");
         paramMap.add("token", API_CLOUD_TOKEN);
-        return apiCloudClient.getBankruptCheck("/bankrot.php", paramMap);
+        String response = apiCloudClient.getApiCloudResponse("/bankrot.php", paramMap);
+        return JSON.isValid(response) ? JSON.parseObject(response, BankruptResponse.class) : new BankruptResponse();
     }
 }

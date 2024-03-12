@@ -1,5 +1,6 @@
 package ru.monitoring.dto.gibdd;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.*;
 
 @AllArgsConstructor
@@ -8,6 +9,7 @@ import lombok.*;
 @Setter
 @ToString
 public class TimeStamp {
-    private Long timestamp;
+    @JSONField(name = "timestamp")
+    private long timeStamp;
     private String date;
 }
