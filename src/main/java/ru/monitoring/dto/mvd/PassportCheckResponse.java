@@ -12,6 +12,6 @@ import ru.monitoring.dto.ResponseDto;
 public class PassportCheckResponse extends ResponseDto {
 
     @JSONField(name = "rezultat")
-    private int result;
+    private Integer result;
     private String info;
 }

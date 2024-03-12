@@ -1,5 +1,6 @@
 package ru.monitoring.service;
 
+import ru.monitoring.dto.ResponseDto;
 import ru.monitoring.dto.fedres_banckrupt.BankruptResponse;
 import ru.monitoring.dto.fssp.FsspResponse;
 import ru.monitoring.dto.gibdd.GibddResponse;
@@ -74,5 +75,23 @@ public final class ReportBuilder {
         report.setRosFinMonResponse(rosFinMonResponse);
         report.setBankruptResponse(bankruptResponse);
         return report;
+    }
+
+    // Проверяем, что сервис вернул ответ с ошибкой, но со статусом 200 или вернул пустой ошибку со статусом 4хх
+    // (надо добавить в клиента возвращение ответа со значением переменных null).
+    private ResponseDto checkingIfStatusNot200(ResponseDto dto) {
+        if (dto.getStatus() == null) {
+            dto.setStatus(500); // какой статус возвращать?
+            dto.setErrorMsg("Сервис вернул ошибку. Запрос не был выполнен.");
+            return dto;
+        }
+        if ( dto.getError() != null) {
+            ResponseDto newDto = new ResponseDto();
+            newDto.setStatus(500);
+            newDto.setErrorMsg("Сервис вернул ошибку: " + dto.getMessage() + " Запрос не был выполнен.");
+            return newDto;
+        }
+
+        return dto;
     }
 }

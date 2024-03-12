@@ -12,7 +12,7 @@ import java.util.List;
 @ToString
 public class BankruptResponse extends ResponseDto {
 
-    private int totalCount; // Количество найденных записей
+    private Integer totalCount; // Количество найденных записей
     private List<Rez> rez;
     // В случае если не нашли
     private Integer num; // Количество найденных записей

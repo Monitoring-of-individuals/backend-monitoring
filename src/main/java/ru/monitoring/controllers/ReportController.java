@@ -55,13 +55,13 @@ public class ReportController {
 
     @GetMapping("/report")
     public Report getReportByParam(/*@PathVariable(value = "userId") Long userId,*/
-                                   @RequestParam @Size(min = 1, message = "Не введены данные в параметр \"Фамилия\".")
-                                   @Pattern(regexp = "[а-яА-Я\\-]*", message = "В переменной \"Фамилия\" присутствуют " +
+                                   @RequestParam @Size(min = 1, message = "Параметр \"Фамилия\" не может быть пустым.")
+                                   @Pattern(regexp = "[а-яА-Я\\-]*", message = "В параметре \"Фамилия\" присутствуют " +
                                            "запрещенные символы. Разрешено: кириллица и знак \"-\"")
                                    String lastName,
-                                   @RequestParam @Pattern(regexp = "[а-яА-Я\\-]*", message = "В переменной \"Имя\" " +
+                                   @RequestParam @Pattern(regexp = "[а-яА-Я\\-]*", message = "В параметре \"Имя\" " +
                                            "присутствуют запрещенные символы. Разрешено: кириллица и знак \"-\"")
-                                   @Size(min = 1, message = "Не введены данные в параметр \"Имя\".")
+                                   @Size(min = 1, message = "Параметр \"Имя\" не может быть пустым.")
                                    String firstName,
                                    @RequestParam String secondName,
                                    @RequestParam @Past @DateTimeFormat(pattern = PATTERN_DATE) LocalDate birthDate,
