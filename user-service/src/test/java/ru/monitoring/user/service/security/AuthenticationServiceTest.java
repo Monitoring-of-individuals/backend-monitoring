@@ -18,20 +18,17 @@ import ru.monitoring.user.mapper.UserMapper;
 import ru.monitoring.user.model.User;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-import static ru.monitoring.user.CreatorTestEntities.getSignInUserDto;
-import static ru.monitoring.user.CreatorTestEntities.getSignUpUserDto;
-import static ru.monitoring.user.CreatorTestEntities.getToken;
-import static ru.monitoring.user.CreatorTestEntities.getUser;
-import static ru.monitoring.user.CreatorTestEntities.getUserResponseDto;
-import static ru.monitoring.user.CreatorTestEntities.getUserWithoutId;
+import static org.mockito.Mockito.*;
+import static ru.monitoring.user.CreatorTestEntities.*;
 
 @RequiredArgsConstructor
-@SpringBootTest(classes = {AuthenticationService.class, UserAuthService.class, JwtService.class, UserMapper.class, AuthenticationManager.class, PasswordEncoder.class, UserDetailsService.class})
+@SpringBootTest(classes = {AuthenticationService.class, UserAuthService.class, JwtService.class,
+        UserMapper.class, AuthenticationManager.class, PasswordEncoder.class,
+        UserDetailsService.class})
 class AuthenticationServiceTest {
 
+    @MockBean
+    UserDetailsService userDetailsService;
     @MockBean
     private UserAuthService userAuthService;
     @MockBean
@@ -45,14 +42,10 @@ class AuthenticationServiceTest {
     @Autowired
     private AuthenticationService testedService;
 
-    @MockBean
-    UserDetailsService userDetailsService;
-
     @AfterEach
     void noMore() {
         verifyNoMoreInteractions(userAuthService, jwtService, userMapper, userDetailsService);
     }
-
 
     @SneakyThrows
     @Test

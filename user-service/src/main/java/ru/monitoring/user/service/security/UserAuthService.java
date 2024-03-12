@@ -52,7 +52,9 @@ public class UserAuthService {
      */
     public User getCurrentUser() {
         // Получение имени пользователя (в данном случае email) из контекста Spring Security
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        String email = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
         return getByUserEmail(email); // Возвращает пользователя по извлеченному email
     }
 }

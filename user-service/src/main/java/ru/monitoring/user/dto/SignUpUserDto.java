@@ -1,6 +1,5 @@
 package ru.monitoring.user.dto;
 
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -25,7 +24,8 @@ public class SignUpUserDto {
     @Email
     @Schema(description = "Адрес электронной почты", example = "joncon@gmail.com")
     private String email;
-    @Pattern(regexp = "^(?=.*[~!@#$%^&*()_+`\\-=\\[\\]\\{\\};':\\\",./<>?])(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])\\S{6,}$")
+    @Pattern(
+            regexp = "^(?=.*[~!@#$%^&*()_+`\\-=\\[\\]\\{\\};':\\\",./<>?])(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])\\S{6,}$")
     @NotBlank
     @Size(min = 6, max = 50, message = "Длина пароля от 6 до 50 символов")
     @Schema(description = "Пароль", example = "my1Pass^")

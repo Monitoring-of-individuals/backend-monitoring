@@ -25,7 +25,6 @@ public class ErrorHandler {
         return new ErrorResponse(e.getMessage());
     }
 
-
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     ErrorResponse handleBadCredentialsException(final BadCredentialsException e) {
@@ -41,9 +40,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleThrowable(final Throwable e) {
-        return new ErrorResponse(
-                " An unexpected error occurred." + e.getMessage()
-        );
+        return new ErrorResponse(" An unexpected error occurred." + e.getMessage());
     }
 
     @ExceptionHandler

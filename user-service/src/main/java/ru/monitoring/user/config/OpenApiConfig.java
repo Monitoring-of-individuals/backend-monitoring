@@ -7,14 +7,9 @@ import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 
 @OpenAPIDefinition(
-        info = @Info(
-                title = "Мониторинг",
-                description = "Мониторинг физ лиц", version = "1.0.0",
+        info = @Info(title = "Мониторинг", description = "Мониторинг физ лиц", version = "1.0.0",
                 contact = @Contact(name = " ")))
-@SecurityScheme(
-        name = "Authentication",
-        type = SecuritySchemeType.HTTP,
-        bearerFormat = "JWT",
+@SecurityScheme(name = "Authentication", type = SecuritySchemeType.HTTP, bearerFormat = "JWT",
         scheme = "bearer")
 public class OpenApiConfig {
 

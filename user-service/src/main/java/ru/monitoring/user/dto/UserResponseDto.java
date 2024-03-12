@@ -18,6 +18,7 @@ public class UserResponseDto {
     private String lastName;
     @Schema(description = "Адрес электронной почты", example = "joncon@gmail.com")
     private String email;
-    @Schema(description = "Токен доступа", example = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTYyMjUwNj...")
+    @Schema(description = "Токен доступа",
+            example = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTYyMjUwNj...")
     private String token;
 }

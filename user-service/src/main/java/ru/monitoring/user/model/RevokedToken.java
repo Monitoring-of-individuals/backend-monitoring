@@ -8,7 +8,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 
 @RedisHash(value = "RevokedToken")
