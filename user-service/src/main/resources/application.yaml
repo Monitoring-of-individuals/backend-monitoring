@@ -1,4 +1,7 @@
 spring:
+  redis:
+    host: localhost
+    port: 6379
   jpa:
     properties:
       hibernate:
@@ -15,7 +18,6 @@ spring:
     url: jdbc:postgresql://localhost:5432/monitoring
     username: postgres
     password: postgres
-
 # App Properties
 token:
   signing:

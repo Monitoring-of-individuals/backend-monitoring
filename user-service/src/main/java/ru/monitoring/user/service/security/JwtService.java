@@ -78,7 +78,7 @@ public class JwtService {
     }
 
     /**
-     * Генерация токена
+     * Генерация токена, время жизни токена 24 часа
      *
      * @param extraClaims дополнительные данные
      * @param userDetails данные пользователя
@@ -86,10 +86,11 @@ public class JwtService {
      */
     private String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         return Jwts.builder()
+                .setHeaderParam("typ", "JWT")
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 100000 * 60 * 24))
+                .setExpiration(new Date(System.currentTimeMillis() + 24 * 3600 * 1000)) // 24 часа
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256).compact();
     }
 
@@ -109,10 +110,19 @@ public class JwtService {
      * @param token токен
      * @return дата истечения
      */
-    private Date extractExpiration(String token) {
+    public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 
+    /**
+     * Извлечение даты выдачи токена
+     *
+     * @param token токен
+     * @return дата выдачи
+     */
+    public Date extractIssuedAt(String token) {
+        return extractClaim(token, Claims::getIssuedAt);
+    }
     /**
      * Извлечение всех данных из токена
      *

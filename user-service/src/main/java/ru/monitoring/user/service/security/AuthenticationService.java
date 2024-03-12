@@ -10,7 +10,11 @@ import ru.monitoring.user.dto.SignInUserDto;
 import ru.monitoring.user.dto.SignUpUserDto;
 import ru.monitoring.user.dto.UserResponseDto;
 import ru.monitoring.user.mapper.UserMapper;
+import ru.monitoring.user.model.RevokedToken;
 import ru.monitoring.user.model.User;
+import ru.monitoring.user.repository.RevokedTokenRepository;
+
+import java.util.Date;
 
 /**
  * Сервис аутентификации, отвечающий за регистрацию и вход пользователей.
@@ -19,10 +23,14 @@ import ru.monitoring.user.model.User;
 @RequiredArgsConstructor
 public class AuthenticationService {
 
+    public static final String BEARER_PREFIX = "Bearer ";
+    public static final String HEADER_NAME = "Authorization";
+
     private final UserAuthService userAuthService;
     private final JwtService jwtService;
     private final UserMapper userMapper;
     private final AuthenticationManager authenticationManager;
+    private final RevokedTokenRepository revokedTokenRepository;
 
     /**
      * Регистрирует нового пользователя в системе.
@@ -46,14 +54,39 @@ public class AuthenticationService {
      * @return JwtResponse Объект ответа, содержащий JWT токен для аутентифицированного пользователя.
      */
     public JwtResponse signIn(SignInUserDto signInUserDto) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                signInUserDto.getEmail(),
-                signInUserDto.getPassword()
-        ));
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(signInUserDto.getEmail(),
+                        signInUserDto.getPassword()));
 
-        UserDetails user = userAuthService.userDetailsService().loadUserByUsername(signInUserDto.getEmail());
+        UserDetails user = userAuthService.userDetailsService()
+                .loadUserByUsername(signInUserDto.getEmail());
 
         String jwt = jwtService.generateToken(user);
         return new JwtResponse(jwt);
+    }
+
+    /**
+     * Отзыв токена аутентификацию пользователя и помещение его во временное хранилище Redis
+     *
+     * @param authToken
+     */
+    public void signOut(String authToken) {
+        // Обрезаем префикс и получаем токен
+        String jwt = authToken.substring(BEARER_PREFIX.length());
+
+        // Добавляем токен в Redis хранилище забаненых ключей
+        Date iat = jwtService.extractIssuedAt(jwt);
+        Date exp = jwtService.extractExpiration(jwt);
+        String email = jwtService.extractUserName(jwt);
+        long ttl = (exp.getTime() - System.currentTimeMillis()) / 1000; // TTL в секундах
+
+        RevokedToken revokedToken = RevokedToken.builder()
+                .token(jwt)
+                .email(email)
+                .iat(iat)
+                .exp(exp)
+                .ttl(ttl)
+                .build();
+        revokedTokenRepository.save(revokedToken);
     }
 }

@@ -57,7 +57,9 @@ public class SecurityConfiguration {
                 }))
                 .authorizeHttpRequests(request -> request
                         .dispatcherTypeMatchers(FORWARD, ERROR).permitAll()
-                        .requestMatchers("/auth/**", "/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/auth/sign-out").authenticated()
+                        .requestMatchers("/auth/helloAuth").authenticated()
+                        .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))

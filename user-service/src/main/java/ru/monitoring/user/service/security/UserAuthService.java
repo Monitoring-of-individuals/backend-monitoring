@@ -5,16 +5,16 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import ru.monitoring.user.model.User;
-import ru.monitoring.user.service.impl.IUserService;
+import ru.monitoring.user.service.impl.UserService;
 
 /**
  * Сервис для работы с пользователями в контексте безопасности.
- * Обеспечивает доступ к данным пользователя посредством сервиса IUserService и интеграцию с Spring Security.
+ * Обеспечивает доступ к данным пользователя посредством сервиса UserService и интеграцию с Spring Security.
  */
 @Service
 @RequiredArgsConstructor
 public class UserAuthService {
-    private final IUserService userService;
+    private final UserService userService;
 
     /**
      * Получает данные пользователя по его email.

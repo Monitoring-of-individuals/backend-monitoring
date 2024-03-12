@@ -7,12 +7,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import ru.monitoring.user.dto.JwtResponse;
 import ru.monitoring.user.dto.SignInUserDto;
 import ru.monitoring.user.dto.SignUpUserDto;
@@ -52,5 +51,11 @@ public class AuthController {
     @PostMapping("/sign-in")
     public JwtResponse signIn(@RequestBody @Valid SignInUserDto signInUserDto) {
         return authenticationService.signIn(signInUserDto);
+    }
+
+    @PostMapping("/sign-out")
+    public ResponseEntity<String> signOut(@RequestHeader(value = "Authorization", required = false) String authToken) {
+        authenticationService.signOut(authToken);
+        return ResponseEntity.ok("Successfully signed out.");
     }
 }
