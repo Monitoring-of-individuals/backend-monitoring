@@ -1,5 +1,6 @@
 package ru.monitoring.dto.fssp;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.*;
 import ru.monitoring.dto.Inquiry;
 
@@ -13,20 +14,29 @@ import java.util.List;
 @ToString
 public class Record {
 
-    private String debtor_name; // ФИО должника
-    private String debtor_address; // Место рождения
-    private String debtor_dob; // Дата рождения
-    private String process_title; // Номер исполнительного производства
-    private String process_date; // Дата начала делопроизводства
+    @JSONField(name = "debtor_name")
+    private String debtorName; // ФИО должника
+    @JSONField(name = "debtor_address")
+    private String debtorAddress; // Место рождения
+    @JSONField(name = "debtor_dob")
+    private String debtorDob; // Дата рождения
+    @JSONField(name = "process_title")
+    private String processTitle; // Номер исполнительного производства
+    @JSONField(name = "process_date")
+    private String processDate; // Дата начала делопроизводства
     private String recIspDoc; // Реквизиты исполнительного документа (вид, дата принятия органом, номер, наименование органа, выдавшего исполнительный документ)
     private String stopIP; // Окончание делопроизводства
     private String subject; // Вид взыскания (Предмет исполнения)
     private String sum; // Сумма непогашенной задолженности
-    private String document_organization; // Отдел судебных приставов
-    private String document_type; // Предмет исполнения, сумма непогашенной задолженности
-    private String officer_name; // Пристав
+    @JSONField(name = "document_organization")
+    private String documentOrganization; // Отдел судебных приставов
+    @JSONField(name = "document_type")
+    private String documentType; // Предмет исполнения, сумма непогашенной задолженности
+    @JSONField(name = "officer_name")
+    private String officerName; // Пристав
     // Контакты пристава
-    private List<List<String>> officer_phones; // Список со списком телефонов
+    @JSONField(name = "officer_phones")
+    private List<List<String>> officerPhones; // Список со списком телефонов
     // Информация о запросе
     private Inquiry inquiry;
 
