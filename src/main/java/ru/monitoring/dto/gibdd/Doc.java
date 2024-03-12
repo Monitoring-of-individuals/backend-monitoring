@@ -1,5 +1,6 @@
 package ru.monitoring.dto.gibdd;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.*;
 
 @AllArgsConstructor
@@ -13,7 +14,8 @@ public class Doc {
     private String division; // Кем выдано
     private String date; // Дата выдачи
     private String stag; // Стаж с
-    private String bdate; // Дата рождения
+    @JSONField(name = "bdate")
+    private String birthDate; // Дата рождения
     private String num; // Серия и номер
     private String cat; // Категории ТС
     private String type;

@@ -1,5 +1,6 @@
 package ru.monitoring.dto.fssp;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.*;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class FsspResponse {
     private String message;
     // В случае если TIME_MAX_CONNECT - Достигнуто максимальное количество коннектов, при которых ресурс не вернул результата
     private String error;
-    private String errormsg;
+    @JSONField(name = "errormsg")
+    private String errorMsg;
 
 }

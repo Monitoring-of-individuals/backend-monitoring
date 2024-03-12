@@ -1,5 +1,6 @@
 package ru.monitoring.dto.gibdd;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.*;
 
 @AllArgsConstructor
@@ -10,12 +11,17 @@ import lombok.*;
 public class Deprivation {
 
     private String date; // Дата вынесения постановления
-    private String fis_id;
-    private String bplace;
+    @JSONField(name = "fis_id")
+    private String fisId;
+    @JSONField(name = "bplace")
+    private String birthPlace;
     private String comment; // Комментарий ГИБДД
-    private String reg_name; // Место рождения нарушителя
+    @JSONField(name = "reg_name")
+    private String regName; // Место рождения нарушителя
     private String state; // Состояние исполнения постановления
     private int srok; // Срок лишения (в месяцах)
-    private String reg_code;
-    private String stateinfo; // Состояние исполнения постановления (расшифровка)
+    @JSONField(name = "reg_code")
+    private String regCode;
+    @JSONField(name = "stateinfo")
+    private String stateInfo; // Состояние исполнения постановления (расшифровка)
 }
