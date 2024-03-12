@@ -5,11 +5,13 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cglib.core.internal.Function;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import ru.monitoring.user.model.User;
+import ru.monitoring.user.repository.RevokedTokenRepository;
 
 import java.security.Key;
 import java.util.Date;
@@ -21,11 +23,13 @@ import java.util.Map;
  * Предоставляет функциональность по генерации, проверке и извлечению информации из JWT.
  */
 @Service
+@RequiredArgsConstructor
 public class JwtService {
 
     @Value("${token.signing.key}")
     private String jwtSigningKey;
 
+    private final RevokedTokenRepository revokedTokenRepository;
     /**
      * Извлечение имени пользователя из токена
      *
@@ -62,6 +66,8 @@ public class JwtService {
     public boolean isTokenValid(String token,
                                 UserDetails userDetails) {
         final String userName = extractUserName(token);
+        if (revokedTokenRepository.existsById(token)) return false; //Если токен отозван, то он
+        // не валиден
         return (userName.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
 
