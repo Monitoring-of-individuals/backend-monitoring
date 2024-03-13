@@ -105,7 +105,7 @@ public class SupplierRequestService {
         paramMap.add("type", "physical");
         paramMap.add("lastname", personInfo.getLastName());
         paramMap.add("firstname", personInfo.getFirstName());
-        paramMap.add("secondname", personInfo.getSecondName());
+        paramMap.add("secondname", personInfo.getFatherName());
         paramMap.add("birthdate", personInfo.getDateOfBirth());
         paramMap.add("region", "-1");
         paramMap.add("searchAll", "1");
@@ -121,7 +121,7 @@ public class SupplierRequestService {
         paramMap.add("type", "inn");
         paramMap.add("lastname", personInfo.getLastName());
         paramMap.add("firstname", personInfo.getFirstName());
-        paramMap.add("secondname", personInfo.getSecondName());
+        paramMap.add("secondname", personInfo.getFatherName());
         paramMap.add("birthdate", personInfo.getDateOfBirth());
         paramMap.add("serianomer", seriesNumber);
         paramMap.add("token", API_CLOUD_TOKEN);
@@ -166,8 +166,8 @@ public class SupplierRequestService {
     }
 
     private RosFinMonResponse getTerrorExtrCheck(PersonIfoDto personInfo) {
-        String name = personInfo.getSecondName() != null ? personInfo.getLastName().toUpperCase() + " " +
-                personInfo.getFirstName().toUpperCase() + " " + personInfo.getSecondName() :
+        String name = personInfo.getFatherName() != null ? personInfo.getLastName().toUpperCase() + " " +
+                personInfo.getFirstName().toUpperCase() + " " + personInfo.getFatherName() :
                 personInfo.getLastName().toUpperCase() + " " + personInfo.getFirstName().toUpperCase();
 
         MultiValueMap paramMap = new LinkedMultiValueMap();

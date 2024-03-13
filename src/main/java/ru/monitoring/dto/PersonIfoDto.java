@@ -31,7 +31,7 @@ public class PersonIfoDto {
     @Size(min = 1, message = FIRST_NAME_MESSAGES)
     @Pattern(regexp = "^[а-яёА-ЯЁ]+(?:-[а-яёА-ЯЁ]+)*$", message = FIRST_NAME_REGEXP_MESSAGE)
     private String firstName;
-    private String secondName;
+    private String fatherName;
     @Past
     @DateTimeFormat(pattern = PATTERN_DATE)
     private LocalDate dateOfBirth;
