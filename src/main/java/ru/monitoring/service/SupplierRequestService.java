@@ -60,10 +60,6 @@ public class SupplierRequestService {
 
         RosFinMonResponse rosFinMonResponse = getTerrorExtrCheck(personInfo);
 
-        if (rosFinMonResponse.getStatus() != null) {
-            checkingEqualityBirthDate(rosFinMonResponse, personInfo.getBirthDate());
-        }
-
         BankruptResponse bankruptResponse = getBankruptCheck(innResponse);
 
         return ReportBuilder.builder()
@@ -110,7 +106,7 @@ public class SupplierRequestService {
         paramMap.add("lastname", personInfo.getLastName());
         paramMap.add("firstname", personInfo.getFirstName());
         paramMap.add("secondname", personInfo.getSecondName());
-        paramMap.add("birthdate", personInfo.getBirthDate());
+        paramMap.add("birthdate", personInfo.getDateOfBirth());
         paramMap.add("region", "-1");
         paramMap.add("searchAll", "1");
         paramMap.add("onlyActual", "0"); //TODO проверить - завершенные делопроизводства 0 или 1? И Нужны ли завершенные?
@@ -120,13 +116,13 @@ public class SupplierRequestService {
     }
 
     private InnResponse getInnCheck(PersonIfoDto personInfo) {
-        String seriesNumber = personInfo.getPassportSeries().trim() + personInfo.getPassportNumber().trim();
+        String seriesNumber = personInfo.getPassport().trim();
         MultiValueMap paramMap = new LinkedMultiValueMap();
         paramMap.add("type", "inn");
         paramMap.add("lastname", personInfo.getLastName());
         paramMap.add("firstname", personInfo.getFirstName());
         paramMap.add("secondname", personInfo.getSecondName());
-        paramMap.add("birthdate", personInfo.getBirthDate());
+        paramMap.add("birthdate", personInfo.getDateOfBirth());
         paramMap.add("serianomer", seriesNumber);
         paramMap.add("token", API_CLOUD_TOKEN);
         String response = apiCloudClient.getApiCloudResponse("/nalog.php", paramMap);
@@ -146,11 +142,13 @@ public class SupplierRequestService {
     }
 
     private PassportCheckResponse getPassportCheck(PersonIfoDto personInfo) {
+        String series = personInfo.getPassport().substring(0, 4);
+        String number = personInfo.getPassport().substring(4);
 
         MultiValueMap paramMap = new LinkedMultiValueMap();
         paramMap.add("type", "chekpassport");
-        paramMap.add("seria", personInfo.getPassportSeries());
-        paramMap.add("nomer", personInfo.getPassportNumber());
+        paramMap.add("seria", series);
+        paramMap.add("nomer", number);
         paramMap.add("token", API_CLOUD_TOKEN);
         String response = apiCloudClient.getApiCloudResponse("/mvd.php", paramMap);
         return JSON.isValid(response) ? JSON.parseObject(response, PassportCheckResponse.class) : new PassportCheckResponse();
@@ -160,8 +158,8 @@ public class SupplierRequestService {
 
         MultiValueMap paramMap = new LinkedMultiValueMap();
         paramMap.add("type", "driver");
-        paramMap.add("serianomer", personInfo.getDriverIdSeriesNumber());
-        paramMap.add("date", personInfo.getDriverIdDate());
+        paramMap.add("serianomer", personInfo.getDrivingLicence());
+        paramMap.add("date", personInfo.getDateOfLicence());
         paramMap.add("token", API_CLOUD_TOKEN);
         String response = apiCloudClient.getApiCloudResponse("/gibdd.php", paramMap);
         return JSON.isValid(response) ? JSON.parseObject(response, GibddResponse.class) : new GibddResponse();
@@ -177,7 +175,15 @@ public class SupplierRequestService {
         paramMap.add("search", name);
         paramMap.add("token", API_CLOUD_TOKEN);
         String response = apiCloudClient.getApiCloudResponse("/fedsfm.php", paramMap);
-        return JSON.isValid(response) ? JSON.parseObject(response, RosFinMonResponse.class) : new RosFinMonResponse();
+        RosFinMonResponse rosFinMonResponse = JSON.isValid(response) ? JSON.parseObject(response, RosFinMonResponse.class)
+                : new RosFinMonResponse();
+
+        if (rosFinMonResponse.getStatus() != null) {
+
+            checkingEqualityBirthDate(rosFinMonResponse, personInfo.getDateOfBirth());
+        }
+
+        return rosFinMonResponse;
     }
 
     private BankruptResponse getBankruptCheck(InnResponse inn) {

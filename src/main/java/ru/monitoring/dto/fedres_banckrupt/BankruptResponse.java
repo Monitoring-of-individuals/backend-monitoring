@@ -14,6 +14,5 @@ public class BankruptResponse extends ResponseDto {
 
     private Integer totalCount; // Количество найденных записей
     private List<Rez> rez;
-    // В случае если не нашли
     private Integer num; // Количество найденных записей
 }
