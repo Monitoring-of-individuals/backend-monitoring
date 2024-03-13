@@ -14,6 +14,7 @@ import ru.monitoring.dto.mvd.PassportCheckResponse;
 import ru.monitoring.dto.nalog.InnResponse;
 import ru.monitoring.dto.nalog.SelfEmplResponse;
 import ru.monitoring.dto.rosfinmon.RosFinMonResponse;
+import ru.monitoring.model.ApiCloudBalance;
 import ru.monitoring.model.Report;
 
 import static ru.monitoring.utils.Constants.API_CLOUD_TOKEN;
@@ -165,5 +166,13 @@ public class SupplierRequestService {
         paramMap.add("token", API_CLOUD_TOKEN);
         String response = apiCloudClient.getApiCloudResponse("/bankrot.php", paramMap);
         return JSON.isValid(response) ? JSON.parseObject(response, BankruptResponse.class) : new BankruptResponse();
+    }
+
+    public ApiCloudBalance getApiCloudBalance() {
+        MultiValueMap paramMap = new LinkedMultiValueMap();
+        paramMap.add("type", "balance");
+        paramMap.add("token", API_CLOUD_TOKEN);
+        String response = apiCloudClient.getApiCloudResponse("/apilk.php", paramMap);
+        return JSON.isValid(response) ? JSON.parseObject(response, ApiCloudBalance.class) : new ApiCloudBalance();
     }
 }
