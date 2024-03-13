@@ -71,6 +71,14 @@ public class SupplierRequestService {
                 .build();
     }
 
+    public ApiCloudBalance getApiCloudBalance() {
+        MultiValueMap paramMap = new LinkedMultiValueMap();
+        paramMap.add("type", "balance");
+        paramMap.add("token", API_CLOUD_TOKEN);
+        String response = apiCloudClient.getApiCloudResponse("/apilk.php", paramMap);
+        return JSON.isValid(response) ? JSON.parseObject(response, ApiCloudBalance.class) : new ApiCloudBalance();
+    }
+
     /**
      * Методы формирования запросов, передаваемых в клиент.<p>
      * Получаемую строку проверяют на соответствие JSON объекту. Если проверка прошла положительно, производит парсинг
@@ -166,13 +174,5 @@ public class SupplierRequestService {
         paramMap.add("token", API_CLOUD_TOKEN);
         String response = apiCloudClient.getApiCloudResponse("/bankrot.php", paramMap);
         return JSON.isValid(response) ? JSON.parseObject(response, BankruptResponse.class) : new BankruptResponse();
-    }
-
-    public ApiCloudBalance getApiCloudBalance() {
-        MultiValueMap paramMap = new LinkedMultiValueMap();
-        paramMap.add("type", "balance");
-        paramMap.add("token", API_CLOUD_TOKEN);
-        String response = apiCloudClient.getApiCloudResponse("/apilk.php", paramMap);
-        return JSON.isValid(response) ? JSON.parseObject(response, ApiCloudBalance.class) : new ApiCloudBalance();
     }
 }

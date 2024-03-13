@@ -32,8 +32,8 @@ public class ApiCloudClient {
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
                 .responseTimeout(Duration.ofMillis(TIMEOUT))
                 .doOnConnected(connection ->
-                        connection.addHandlerLast(new ReadTimeoutHandler(TIMEOUT, TimeUnit.MILLISECONDS))
-                                .addHandlerLast(new WriteTimeoutHandler(TIMEOUT, TimeUnit.MILLISECONDS)));
+                        connection.addHandlerLast(new ReadTimeoutHandler(5000, TimeUnit.MILLISECONDS))
+                                .addHandlerLast(new WriteTimeoutHandler(5000, TimeUnit.MILLISECONDS)));
         this.client = WebClient.builder()
                 .baseUrl(apiCloudUrl)
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
@@ -51,7 +51,7 @@ public class ApiCloudClient {
         return client.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/api")
-                        .path(service) // /bankrot.php
+                        .path(service)
                         .queryParams(paramMap)
                         .build())
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
