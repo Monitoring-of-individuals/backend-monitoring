@@ -1,11 +1,13 @@
 package ru.monitoring.user.service.security;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import ru.monitoring.user.dto.JwtResponse;
@@ -29,6 +31,7 @@ import java.util.Date;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthenticationService {
 
     public static final String BEARER_PREFIX = "Bearer ";
@@ -51,6 +54,7 @@ public class AuthenticationService {
      * @param signUpUserDto DTO для регистрации нового пользователя.
      * @return UserResponseDto DTO, содержащий информацию о зарегистрированном пользователе, включая JWT токен.
      */
+    @Transactional
     public UserResponseDto signUp(SignUpUserDto signUpUserDto) {
         User user = userMapper.convertSignUpUserDtoToUser(signUpUserDto);
         User returnedUser = userAuthService.create(user);
@@ -70,7 +74,7 @@ public class AuthenticationService {
         Context context = new Context();
         context.setVariable("username", user.getFirstName());
         message = templateEngine.process("registration_done_email_template.html", context);
-        mailService.sendMail(fromEmail, user.getEmail(), "Регистрация", message);
+        //mailService.sendMail(fromEmail, user.getEmail(), "Регистрация", message);
 
         return userResponseDto;
     }
@@ -90,6 +94,7 @@ public class AuthenticationService {
                 .loadUserByUsername(signInUserDto.getEmail());
 
         String jwt = jwtService.generateToken(user);
+        log.info("Пользователь {} успешно прошел авторизацию", user.getUsername());
         return new JwtResponse(jwt);
     }
 

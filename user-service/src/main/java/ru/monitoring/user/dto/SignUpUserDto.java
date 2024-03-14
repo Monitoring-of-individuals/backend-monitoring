@@ -25,7 +25,7 @@ public class SignUpUserDto {
     private String lastName;
     @NotBlank(message = "Электронная почта не может быть пустой")
     @Size(min = 5, max = 50, message = "Длина электронной почты должна быть от 5 до 50 символов")
-    @Pattern(regexp = "^[\\w-@.]{5,50}$", message = "Некорректный e-mail")
+    @Pattern(regexp = "^[A-Za-z0-9+_.-]+@(.+)$", message = "Некорректный e-mail")
     @Schema(description = "Адрес электронной почты", example = "joncon@gmail.com")
     private String email;
     @Pattern(

@@ -1,5 +1,6 @@
 package ru.monitoring.user.controller;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
@@ -7,15 +8,21 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.monitoring.user.exception.UserAlreadyExistsException;
-import ru.monitoring.user.exception.UserNotFoundException;
+import ru.monitoring.user.exception.ResourceAlreadyExistsException;
+import ru.monitoring.user.exception.ResourceNotFoundException;
 
 @RestControllerAdvice
 public class ErrorHandler {
 
+    @ExceptionHandler(ExpiredJwtException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    ErrorResponse handleExpiredJwtException(ExpiredJwtException e) {
+        return new ErrorResponse("Token dead, re-login");
+    }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    ErrorResponse handleUserNotFoundException(final UserNotFoundException e) {
+    ErrorResponse handleUserNotFoundException(final ResourceNotFoundException e) {
         return new ErrorResponse(e.getMessage());
     }
 
@@ -33,7 +40,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    ErrorResponse handleUserAlreadyExistsException(final UserAlreadyExistsException e) {
+    ErrorResponse handleUserAlreadyExistsException(final ResourceAlreadyExistsException e) {
         return new ErrorResponse(e.getMessage());
     }
 
