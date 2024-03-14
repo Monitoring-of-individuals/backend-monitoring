@@ -27,9 +27,6 @@ public class ReportController {
                             @RequestParam(required = false) String passportNumber,
                             @RequestParam(required = false) String driverIdSeriesNumber,
                             @RequestParam(required = false) String driverIdDate) {
-        if (lastName == null || firstName == null || birthDate == null) {
-            return service.getReport(PersonIfoDto.makeSamplePersonInfoDto());
-        }
         return service.getReport(new PersonIfoDto(lastName, firstName, secondName, birthDate, passportSeries,
                 passportNumber, driverIdSeriesNumber, driverIdDate));
     }
