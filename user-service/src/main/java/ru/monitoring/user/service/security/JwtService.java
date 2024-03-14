@@ -27,7 +27,7 @@ import java.util.Map;
 public class JwtService {
 
     private final RevokedTokenRepository revokedTokenRepository;
-    @Value("${token.signing.key}")
+    @Value("${app.token.signing.key}")
     private String jwtSigningKey;
 
     /**
