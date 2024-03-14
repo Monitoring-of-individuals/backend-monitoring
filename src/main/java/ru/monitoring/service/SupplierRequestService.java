@@ -2,6 +2,7 @@ package ru.monitoring.service;
 
 import com.alibaba.fastjson2.JSON;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -23,6 +24,7 @@ import static ru.monitoring.utils.Constants.API_CLOUD_TOKEN;
 
 @AllArgsConstructor
 @Service
+@Slf4j
 public class SupplierRequestService {
 
     private final ApiCloudClient apiCloudClient;
@@ -49,18 +51,25 @@ public class SupplierRequestService {
     public Report getReport(PersonIfoDto personInfo) {
 
         FsspResponse fsspResponse = getEnfProcessingsCheck(personInfo);
+        log.info("Response received {}", fsspResponse);
 
         InnResponse innResponse = getInnCheck(personInfo);
+        log.info("Response received {}", innResponse);
 
         SelfEmplResponse selfEmplResponse = getSelfEmplCheck(innResponse);
+        log.info("Response received {}", selfEmplResponse);
 
         PassportCheckResponse passportCheckResponse = getPassportCheck(personInfo);
+        log.info("Response received {}", passportCheckResponse);
 
         GibddResponse gibddResponse = getDriverIdCheck(personInfo);
+        log.info("Response received {}", gibddResponse);
 
         RosFinMonResponse rosFinMonResponse = getTerrorExtrCheck(personInfo);
+        log.info("Response received {}", rosFinMonResponse);
 
         BankruptResponse bankruptResponse = getBankruptCheck(innResponse);
+        log.info("Response received {}", bankruptResponse);
 
         return ReportBuilder.builder()
                 .addFsspResponse(fsspResponse)
@@ -111,6 +120,8 @@ public class SupplierRequestService {
         paramMap.add("searchAll", "1");
         paramMap.add("onlyActual", "0"); //TODO проверить - завершенные делопроизводства 0 или 1? И Нужны ли завершенные?
         paramMap.add("token", API_CLOUD_TOKEN);
+
+        log.info("Request a report to FSSP by parameters: {}", paramMap);
         String response = apiCloudClient.getApiCloudResponse("/fssp.php", paramMap);
         return JSON.isValid(response) ? JSON.parseObject(response, FsspResponse.class) : new FsspResponse();
     }
@@ -125,18 +136,25 @@ public class SupplierRequestService {
         paramMap.add("birthdate", personInfo.getDateOfBirth());
         paramMap.add("serianomer", seriesNumber);
         paramMap.add("token", API_CLOUD_TOKEN);
+
+        log.info("Request a report to FNS by parameters: {}", paramMap);
         String response = apiCloudClient.getApiCloudResponse("/nalog.php", paramMap);
         return JSON.isValid(response) ? JSON.parseObject(response, InnResponse.class) : new InnResponse();
     }
 
     private SelfEmplResponse getSelfEmplCheck(InnResponse inn) {
         if (inn.getInn() == null) {
-            return new SelfEmplResponse();
+            SelfEmplResponse response = new SelfEmplResponse();
+            response.setMessage("Запрос не выполнен, т.к. ИНН не был найден.");
+            log.info("The request was not executed.");
+            return response;
         }
         MultiValueMap paramMap = new LinkedMultiValueMap();
         paramMap.add("type", "npd");
         paramMap.add("inn", inn);
         paramMap.add("token", API_CLOUD_TOKEN);
+
+        log.info("Request a report to FNS by parameters: {}", paramMap);
         String response = apiCloudClient.getApiCloudResponse("/nalog.php", paramMap);
         return JSON.isValid(response) ? JSON.parseObject(response, SelfEmplResponse.class) : new SelfEmplResponse();
     }
@@ -150,17 +168,27 @@ public class SupplierRequestService {
         paramMap.add("seria", series);
         paramMap.add("nomer", number);
         paramMap.add("token", API_CLOUD_TOKEN);
+
+        log.info("Request a report to MVD by parameters: {}", paramMap);
         String response = apiCloudClient.getApiCloudResponse("/mvd.php", paramMap);
         return JSON.isValid(response) ? JSON.parseObject(response, PassportCheckResponse.class) : new PassportCheckResponse();
     }
 
     private GibddResponse getDriverIdCheck(PersonIfoDto personInfo) {
+        if (personInfo.getDrivingLicence() == null || personInfo.getDateOfLicence() == null) {
+            GibddResponse gibddResponse = new GibddResponse();
+            gibddResponse.setMessage("В запросе не были предоставлены полные необходимые данные по водительскому удостоверению");
+            log.info("The request to GIBDD was not executed.");
+            return gibddResponse;
+        }
 
         MultiValueMap paramMap = new LinkedMultiValueMap();
         paramMap.add("type", "driver");
         paramMap.add("serianomer", personInfo.getDrivingLicence());
         paramMap.add("date", personInfo.getDateOfLicence());
         paramMap.add("token", API_CLOUD_TOKEN);
+
+        log.info("Request a report to GIBDD by parameters: {}", paramMap);
         String response = apiCloudClient.getApiCloudResponse("/gibdd.php", paramMap);
         return JSON.isValid(response) ? JSON.parseObject(response, GibddResponse.class) : new GibddResponse();
     }
@@ -174,6 +202,8 @@ public class SupplierRequestService {
         paramMap.add("type", "terextr");
         paramMap.add("search", name);
         paramMap.add("token", API_CLOUD_TOKEN);
+
+        log.info("Request a report to fedsfm by parameters: {}", paramMap);
         String response = apiCloudClient.getApiCloudResponse("/fedsfm.php", paramMap);
         RosFinMonResponse rosFinMonResponse = JSON.isValid(response) ? JSON.parseObject(response, RosFinMonResponse.class)
                 : new RosFinMonResponse();
@@ -188,7 +218,10 @@ public class SupplierRequestService {
 
     private BankruptResponse getBankruptCheck(InnResponse inn) {
         if (inn.getInn() == null) {
-            return new BankruptResponse();
+            BankruptResponse response= new BankruptResponse();
+            response.setMessage("Запрос не выполнен, т.к. ИНН не был найден.");
+            log.info("The request was not executed.");
+            return response;
         }
 
         MultiValueMap paramMap = new LinkedMultiValueMap();
@@ -196,6 +229,7 @@ public class SupplierRequestService {
         paramMap.add("string", inn);
         paramMap.add("legalStatus", "fiz");
         paramMap.add("token", API_CLOUD_TOKEN);
+        log.info("Request a report to bankrot.fedresurs by parameters: {}", paramMap);
         String response = apiCloudClient.getApiCloudResponse("/bankrot.php", paramMap);
         return JSON.isValid(response) ? JSON.parseObject(response, BankruptResponse.class) : new BankruptResponse();
     }

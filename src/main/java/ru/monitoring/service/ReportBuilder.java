@@ -27,37 +27,37 @@ public final class ReportBuilder {
     }
 
     public ReportBuilder addFsspResponse(FsspResponse fsspResponse) {
-        this.fsspResponse = fsspResponse;
+        this.fsspResponse = (FsspResponse) checkingIfStatusNot200(fsspResponse);
         return this;
     }
 
     public ReportBuilder addInnResponse(InnResponse innResponse) {
-        this.innResponse = innResponse;
+        this.innResponse = (InnResponse) checkingIfStatusNot200(innResponse);
         return this;
     }
 
     public ReportBuilder addSelfEmplResponse(SelfEmplResponse selfEmplResponse) {
-        this.selfEmplResponse = selfEmplResponse;
+        this.selfEmplResponse = (SelfEmplResponse) checkingIfStatusNot200(selfEmplResponse);
         return this;
     }
 
     public ReportBuilder addPassportCheckResponse(PassportCheckResponse passportCheckResponse) {
-        this.passportCheckResponse = passportCheckResponse;
+        this.passportCheckResponse = (PassportCheckResponse) checkingIfStatusNot200(passportCheckResponse);
         return this;
     }
 
     public ReportBuilder addGibddResponse(GibddResponse gibddResponse) {
-        this.gibddResponse = gibddResponse;
+        this.gibddResponse = (GibddResponse) checkingIfStatusNot200(gibddResponse);
         return this;
     }
 
     public ReportBuilder addRosFinMonResponse(RosFinMonResponse rosFinMonResponse) {
-        this.rosFinMonResponse = rosFinMonResponse;
+        this.rosFinMonResponse = (RosFinMonResponse) checkingIfStatusNot200(rosFinMonResponse);
         return this;
     }
 
     public ReportBuilder addBankruptResponse(BankruptResponse bankruptResponse) {
-        this.bankruptResponse = bankruptResponse;
+        this.bankruptResponse = (BankruptResponse) checkingIfStatusNot200(bankruptResponse);
         return this;
     }
 
@@ -80,16 +80,8 @@ public final class ReportBuilder {
     // Проверяем, что сервис вернул ответ с ошибкой, но со статусом 200 или вернул пустой ошибку со статусом 4хх
     // (надо добавить в клиента возвращение ответа со значением переменных null).
     private ResponseDto checkingIfStatusNot200(ResponseDto dto) {
-        if (dto.getStatus() == null) {
-            dto.setStatus(500); // какой статус возвращать?
-            dto.setErrorMsg("Сервис вернул ошибку. Запрос не был выполнен.");
-            return dto;
-        }
         if ( dto.getError() != null) {
-            ResponseDto newDto = new ResponseDto();
-            newDto.setStatus(500);
-            newDto.setErrorMsg("Сервис вернул ошибку: " + dto.getMessage() + " Запрос не был выполнен.");
-            return newDto;
+            return new ResponseDto();
         }
 
         return dto;
