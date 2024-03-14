@@ -14,7 +14,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
-import reactor.util.retry.Retry;
 import ru.monitoring.exceptions.ApiCloudResponseException;
 
 import java.time.Duration;
@@ -32,7 +31,7 @@ public class ApiCloudClient {
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
                 .responseTimeout(Duration.ofMillis(TIMEOUT))
                 .doOnConnected(connection ->
-                        connection.addHandlerLast(new ReadTimeoutHandler(5000, TimeUnit.MILLISECONDS))
+                        connection.addHandlerLast(new ReadTimeoutHandler(TIMEOUT, TimeUnit.MILLISECONDS))
                                 .addHandlerLast(new WriteTimeoutHandler(5000, TimeUnit.MILLISECONDS)));
         this.client = WebClient.builder()
                 .baseUrl(apiCloudUrl)
@@ -64,11 +63,6 @@ public class ApiCloudClient {
                 .bodyToMono(String.class)
                 .doOnError(error -> {
                     log.error("Произошла ошибка: {}, подробности: {}, стэктрейс: {}", error.getClass(), error.getMessage(), error.getStackTrace());
-                })
-                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(1000)))
-                .doOnError(error -> {
-                    log.error("Произошла ошибка: {}, с сообщением: {}, причина: {}, стэктрейс: {}", error.getClass(),
-                            error.getMessage(), error.getCause(), error.getStackTrace());
                 })
                 .onErrorResume(ex -> Mono.empty())
                 .block();
