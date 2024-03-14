@@ -10,7 +10,6 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
 public class FsspResponse extends ResponseDto {
 
     private String countAll; // Всего записей
@@ -19,4 +18,21 @@ public class FsspResponse extends ResponseDto {
     private Integer totalLoadedPage; // Загружено страниц в результате (по умолчанию загружается 1 страница, возможно загрузить максимум 4 страницы при переданном параметре searchAll=1)
     private Integer onlyActual; // Активность фильтра "Только актуальные делопроизводства"
     private List<Record> records;
+
+    @Override
+    public String toString() {
+        return "FsspResponse{" +
+                "countAll='" + countAll + '\'' +
+                ", pagesAll='" + pagesAll + '\'' +
+                ", count=" + count +
+                ", totalLoadedPage=" + totalLoadedPage +
+                ", onlyActual=" + onlyActual +
+                ", records=" + records +
+                ", status=" + status +
+                ", inquiry=" + inquiry +
+                ", error='" + error + '\'' +
+                ", message='" + message + '\'' +
+                ", errorMsg='" + errorMsg + '\'' +
+                '}';
+    }
 }

@@ -8,7 +8,6 @@ import ru.monitoring.dto.ResponseDto;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 public class SelfEmplResponse extends ResponseDto {
 
     private Boolean found;
@@ -16,4 +15,19 @@ public class SelfEmplResponse extends ResponseDto {
     private String date;
     @JSONField(name = "NPD")
     private Integer npd; // Статус НПД (1 - является налогоплательщиком на профессиональный доход, 0 - не является)
+
+    @Override
+    public String toString() {
+        return "SelfEmplResponse{" +
+                "found=" + found +
+                ", inn='" + inn + '\'' +
+                ", date='" + date + '\'' +
+                ", npd=" + npd +
+                ", status=" + status +
+                ", inquiry=" + inquiry +
+                ", error='" + error + '\'' +
+                ", message='" + message + '\'' +
+                ", errorMsg='" + errorMsg + '\'' +
+                '}';
+    }
 }

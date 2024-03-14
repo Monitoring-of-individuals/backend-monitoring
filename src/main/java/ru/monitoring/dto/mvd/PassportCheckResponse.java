@@ -8,10 +8,23 @@ import ru.monitoring.dto.ResponseDto;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
+
 public class PassportCheckResponse extends ResponseDto {
 
     @JSONField(name = "rezultat")
     private Integer result;
     private String info;
+
+    @Override
+    public String toString() {
+        return "PassportCheckResponse{" +
+                "result=" + result +
+                ", info='" + info + '\'' +
+                ", status=" + status +
+                ", inquiry=" + inquiry +
+                ", error='" + error + '\'' +
+                ", message='" + message + '\'' +
+                ", errorMsg='" + errorMsg + '\'' +
+                '}';
+    }
 }
