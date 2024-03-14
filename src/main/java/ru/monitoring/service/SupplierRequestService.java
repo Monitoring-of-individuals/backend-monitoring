@@ -203,7 +203,7 @@ public class SupplierRequestService {
 
     private RosFinMonResponse getTerrorExtrCheck(PersonIfoDto personInfo) {
         String name = personInfo.getFatherName() != null ? personInfo.getLastName().toUpperCase() + " " +
-                personInfo.getFirstName().toUpperCase() + " " + personInfo.getFatherName() :
+                personInfo.getFirstName().toUpperCase() + " " + personInfo.getFatherName().toUpperCase() :
                 personInfo.getLastName().toUpperCase() + " " + personInfo.getFirstName().toUpperCase();
 
         MultiValueMap paramMap = new LinkedMultiValueMap();
@@ -211,7 +211,7 @@ public class SupplierRequestService {
         paramMap.add("search", name);
         paramMap.add("token", API_CLOUD_TOKEN);
 
-        log.info("Request a report to fedsfm by parameters: {}", paramMap);
+        log.info("Request a report to FEDSFM by parameters: {}", paramMap);
         String response = apiCloudClient.getApiCloudResponse("/fedsfm.php", paramMap);
         RosFinMonResponse rosFinMonResponse = JSON.isValid(response) ? JSON.parseObject(response, RosFinMonResponse.class)
                 : new RosFinMonResponse();

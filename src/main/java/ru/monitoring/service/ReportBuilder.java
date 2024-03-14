@@ -2,6 +2,7 @@ package ru.monitoring.service;
 
 import ru.monitoring.dto.ResponseDto;
 import ru.monitoring.dto.fedres_banckrupt.BankruptResponse;
+import ru.monitoring.dto.fssp.FsspResponse;
 import ru.monitoring.dto.gibdd.GibddResponse;
 import ru.monitoring.dto.mvd.PassportCheckResponse;
 import ru.monitoring.dto.nalog.InnResponse;
@@ -25,7 +26,7 @@ public final class ReportBuilder {
     public ReportBuilder() {
     }
 
-    public ReportBuilder addFsspResponse(ResponseDto fsspResponse) {
+    public ReportBuilder addFsspResponse(FsspResponse fsspResponse) {
         this.fsspResponse = checkingIfStatusNot200(fsspResponse);
         return this;
     }

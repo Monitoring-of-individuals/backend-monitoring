@@ -29,7 +29,7 @@ public class PersonIfoDto {
     @Pattern(regexp = "^[а-яёА-ЯЁ]+(?:-[а-яёА-ЯЁ]+)*$", message = FIRST_NAME_REGEXP_MESSAGE)
     private String firstName;
 
-    @Pattern(regexp = "[0-9]*", message = PASSPORT_REGEXP_MESSAGE)
+    @Pattern(regexp = "^[а-яёА-ЯЁ]+(?:-[а-яёА-ЯЁ]+)*$", message = FIRST_NAME_REGEXP_MESSAGE)
     private String fatherName;
 
     @NotNull
