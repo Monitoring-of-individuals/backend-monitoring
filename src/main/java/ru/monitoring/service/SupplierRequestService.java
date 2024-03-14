@@ -95,7 +95,7 @@ public class SupplierRequestService {
         paramMap.add("birthdate", personInfo.getBirthDate());
         paramMap.add("region", "-1");
         paramMap.add("searchAll", "1");
-        paramMap.add("onlyActual", "0"); //TODO проверить - завершенные делопроизводства 0 или 1? И Нужны ли завершенные?
+        paramMap.add("onlyActual", "0"); //0 - все, включая погашенные, 1 - только текущие
         paramMap.add("token", API_CLOUD_TOKEN);
         String response = apiCloudClient.getApiCloudResponse("/fssp.php", paramMap);
         return JSON.isValid(response) ? JSON.parseObject(response, FsspResponse.class) : new FsspResponse();
@@ -121,7 +121,7 @@ public class SupplierRequestService {
         }
         MultiValueMap paramMap = new LinkedMultiValueMap();
         paramMap.add("type", "npd");
-        paramMap.add("inn", inn);
+        paramMap.add("inn", inn.getInn());
         paramMap.add("token", API_CLOUD_TOKEN);
         String response = apiCloudClient.getApiCloudResponse("/nalog.php", paramMap);
         return JSON.isValid(response) ? JSON.parseObject(response, SelfEmplResponse.class) : new SelfEmplResponse();
@@ -169,7 +169,7 @@ public class SupplierRequestService {
 
         MultiValueMap paramMap = new LinkedMultiValueMap();
         paramMap.add("type", "searchString");
-        paramMap.add("string", inn);
+        paramMap.add("string", inn.getInn());
         paramMap.add("legalStatus", "fiz");
         paramMap.add("token", API_CLOUD_TOKEN);
         String response = apiCloudClient.getApiCloudResponse("/bankrot.php", paramMap);
