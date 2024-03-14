@@ -47,6 +47,8 @@ public class AuthenticationService {
     private final TemplateEngine templateEngine;
     @Value("${spring.mail.username}")
     private String fromEmail;
+    @Value("${app.notifications.enabled}")
+    private boolean isNotify; // слать ли уведомление на почту об успешной регистрации
 
     /**
      * Регистрирует нового пользователя в системе.
@@ -62,19 +64,23 @@ public class AuthenticationService {
         String jwt = jwtService.generateToken(returnedUser);
         userResponseDto.setToken(jwt);
 
-        // Отошлём сообщение на почту, что регистрация прошла успешно
-        byte[] messageHtmlEncoded = new byte[0];
-        try {
-            messageHtmlEncoded = Files.readAllBytes(Paths.get(templateHtml));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
 
-        String message = new String(messageHtmlEncoded, StandardCharsets.UTF_8);
-        Context context = new Context();
-        context.setVariable("username", user.getFirstName());
-        message = templateEngine.process("registration_done_email_template.html", context);
-        //mailService.sendMail(fromEmail, user.getEmail(), "Регистрация", message);
+        // Отсылка уведомления на почту по необходимости
+        if (isNotify) {
+            // Отошлём сообщение на почту, что регистрация прошла успешно
+            byte[] messageHtmlEncoded;
+            try {
+                messageHtmlEncoded = Files.readAllBytes(Paths.get(templateHtml));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            String message = new String(messageHtmlEncoded, StandardCharsets.UTF_8);
+            Context context = new Context();
+            context.setVariable("username", user.getFirstName());
+            message = templateEngine.process("registration_done_email_template.html", context);
+            mailService.sendMail(fromEmail, user.getEmail(), "Регистрация", message);
+        }
 
         return userResponseDto;
     }

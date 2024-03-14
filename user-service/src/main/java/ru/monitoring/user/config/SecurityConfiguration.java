@@ -63,6 +63,8 @@ public class SecurityConfiguration {
                         .authenticated()
                         .requestMatchers("/auth/**")
                         .permitAll()
+                        .requestMatchers("/api")
+                        .authenticated()
                         .requestMatchers("/admin/**")
                         .hasRole("ADMIN")
                         .anyRequest()
