@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.monitoring.user.dto.JwtResponse;
@@ -21,6 +22,7 @@ import ru.monitoring.user.service.security.AuthenticationService;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/auth")
+@Slf4j
 public class AuthController {
     private final AuthenticationService authenticationService;
 
@@ -33,6 +35,7 @@ public class AuthController {
             @ApiResponse(responseCode = "500", description = "Internal server error")})
     @PostMapping("/sign-up")
     public UserResponseDto signUp(@RequestBody @Valid SignUpUserDto signUpUserDto) {
+        log.info("Получен запрос на регистрацию пользователя email {} ", signUpUserDto.getEmail());
         return authenticationService.signUp(signUpUserDto);
     }
 

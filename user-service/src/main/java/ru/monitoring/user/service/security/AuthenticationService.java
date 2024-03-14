@@ -1,10 +1,13 @@
 package ru.monitoring.user.service.security;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 import ru.monitoring.user.dto.JwtResponse;
 import ru.monitoring.user.dto.SignInUserDto;
 import ru.monitoring.user.dto.SignUpUserDto;
@@ -13,7 +16,12 @@ import ru.monitoring.user.mapper.UserMapper;
 import ru.monitoring.user.model.RevokedToken;
 import ru.monitoring.user.model.User;
 import ru.monitoring.user.repository.RevokedTokenRepository;
+import ru.monitoring.user.service.IMailService;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Date;
 
 /**
@@ -25,12 +33,17 @@ public class AuthenticationService {
 
     public static final String BEARER_PREFIX = "Bearer ";
     public static final String HEADER_NAME = "Authorization";
-
+    private static final String templateHtml
+            = "user-service/src/main/resources/templates/registration_done_email_template.html";
     private final UserAuthService userAuthService;
     private final JwtService jwtService;
     private final UserMapper userMapper;
     private final AuthenticationManager authenticationManager;
     private final RevokedTokenRepository revokedTokenRepository;
+    private final IMailService mailService;
+    private final TemplateEngine templateEngine;
+    @Value("${spring.mail.username}")
+    private String fromEmail;
 
     /**
      * Регистрирует нового пользователя в системе.
@@ -44,6 +57,21 @@ public class AuthenticationService {
         UserResponseDto userResponseDto = userMapper.convertUserToUserResponseDto(user);
         String jwt = jwtService.generateToken(returnedUser);
         userResponseDto.setToken(jwt);
+
+        // Отошлём сообщение на почту, что регистрация прошла успешно
+        byte[] messageHtmlEncoded = new byte[0];
+        try {
+            messageHtmlEncoded = Files.readAllBytes(Paths.get(templateHtml));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        String message = new String(messageHtmlEncoded, StandardCharsets.UTF_8);
+        Context context = new Context();
+        context.setVariable("username", user.getFirstName());
+        message = templateEngine.process("registration_done_email_template.html", context);
+        mailService.sendMail(fromEmail, user.getEmail(), "Регистрация", message);
+
         return userResponseDto;
     }
 

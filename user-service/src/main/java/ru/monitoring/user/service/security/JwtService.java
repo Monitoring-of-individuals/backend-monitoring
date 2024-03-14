@@ -26,10 +26,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class JwtService {
 
+    private final RevokedTokenRepository revokedTokenRepository;
     @Value("${token.signing.key}")
     private String jwtSigningKey;
 
-    private final RevokedTokenRepository revokedTokenRepository;
     /**
      * Извлечение имени пользователя из токена
      *

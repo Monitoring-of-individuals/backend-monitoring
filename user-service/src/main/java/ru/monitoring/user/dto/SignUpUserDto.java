@@ -1,7 +1,6 @@
 package ru.monitoring.user.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -15,13 +14,18 @@ public class SignUpUserDto {
     @Schema(description = "Имя пользователя", example = "Jon")
     @NotBlank
     @Size(min = 2, max = 25, message = "Длина имени должна быть от 2 до 25 символов")
+    @Pattern(regexp = "^[а-яА-ЯёЁa-zA-Z\\s]+$",
+            message = "Имя может содержать только буквы русского и английского алфавитов и пробелы")
     private String firstName;
     @Schema(description = "Фамилия пользователя", example = "Conor")
     @NotBlank
     @Size(min = 2, max = 25, message = "Длина фамилии должна быть от 2 до 25 символов")
+    @Pattern(regexp = "^[а-яА-ЯёЁa-zA-Z\\s]+$",
+            message = "Имя может содержать только буквы русского и английского алфавитов и пробелы")
     private String lastName;
-    @NotBlank
-    @Email
+    @NotBlank(message = "Электронная почта не может быть пустой")
+    @Size(min = 5, max = 50, message = "Длина электронной почты должна быть от 5 до 50 символов")
+    @Pattern(regexp = "^[\\w-@.]{5,50}$", message = "Некорректный e-mail")
     @Schema(description = "Адрес электронной почты", example = "joncon@gmail.com")
     private String email;
     @Pattern(
