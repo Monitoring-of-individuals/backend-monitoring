@@ -37,7 +37,4 @@ public class Record {
     // Контакты пристава
     @JSONField(name = "officer_phones")
     private List<List<String>> officerPhones; // Список со списком телефонов
-    // Информация о запросе
-    private Inquiry inquiry;
-
 }

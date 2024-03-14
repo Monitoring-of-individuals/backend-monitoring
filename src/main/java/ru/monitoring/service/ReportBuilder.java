@@ -2,7 +2,6 @@ package ru.monitoring.service;
 
 import ru.monitoring.dto.ResponseDto;
 import ru.monitoring.dto.fedres_banckrupt.BankruptResponse;
-import ru.monitoring.dto.fssp.FsspResponse;
 import ru.monitoring.dto.gibdd.GibddResponse;
 import ru.monitoring.dto.mvd.PassportCheckResponse;
 import ru.monitoring.dto.nalog.InnResponse;
@@ -15,49 +14,49 @@ import ru.monitoring.model.Report;
  * будущем необходимо добавить логику обработки отчета, с целью формирования выходного объекта в правильном виде.
  */
 public final class ReportBuilder {
-    private FsspResponse fsspResponse;
-    private InnResponse innResponse;
-    private SelfEmplResponse selfEmplResponse;
-    private PassportCheckResponse passportCheckResponse;
-    private GibddResponse gibddResponse;
-    private RosFinMonResponse rosFinMonResponse;
-    private BankruptResponse bankruptResponse;
+    private ResponseDto fsspResponse;
+    private ResponseDto innResponse;
+    private ResponseDto selfEmplResponse;
+    private ResponseDto passportCheckResponse;
+    private ResponseDto gibddResponse;
+    private ResponseDto rosFinMonResponse;
+    private ResponseDto bankruptResponse;
 
     public ReportBuilder() {
     }
 
-    public ReportBuilder addFsspResponse(FsspResponse fsspResponse) {
-        this.fsspResponse = (FsspResponse) checkingIfStatusNot200(fsspResponse);
+    public ReportBuilder addFsspResponse(ResponseDto fsspResponse) {
+        this.fsspResponse = checkingIfStatusNot200(fsspResponse);
         return this;
     }
 
     public ReportBuilder addInnResponse(InnResponse innResponse) {
-        this.innResponse = (InnResponse) checkingIfStatusNot200(innResponse);
+        this.innResponse = checkingIfStatusNot200(innResponse);
         return this;
     }
 
     public ReportBuilder addSelfEmplResponse(SelfEmplResponse selfEmplResponse) {
-        this.selfEmplResponse = (SelfEmplResponse) checkingIfStatusNot200(selfEmplResponse);
+        this.selfEmplResponse = checkingIfStatusNot200(selfEmplResponse);
         return this;
     }
 
     public ReportBuilder addPassportCheckResponse(PassportCheckResponse passportCheckResponse) {
-        this.passportCheckResponse = (PassportCheckResponse) checkingIfStatusNot200(passportCheckResponse);
+        this.passportCheckResponse = checkingIfStatusNot200(passportCheckResponse);
         return this;
     }
 
     public ReportBuilder addGibddResponse(GibddResponse gibddResponse) {
-        this.gibddResponse = (GibddResponse) checkingIfStatusNot200(gibddResponse);
+        this.gibddResponse = checkingIfStatusNot200(gibddResponse);
         return this;
     }
 
     public ReportBuilder addRosFinMonResponse(RosFinMonResponse rosFinMonResponse) {
-        this.rosFinMonResponse = (RosFinMonResponse) checkingIfStatusNot200(rosFinMonResponse);
+        this.rosFinMonResponse = checkingIfStatusNot200(rosFinMonResponse);
         return this;
     }
 
     public ReportBuilder addBankruptResponse(BankruptResponse bankruptResponse) {
-        this.bankruptResponse = (BankruptResponse) checkingIfStatusNot200(bankruptResponse);
+        this.bankruptResponse = checkingIfStatusNot200(bankruptResponse);
         return this;
     }
 

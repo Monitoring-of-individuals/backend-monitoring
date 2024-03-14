@@ -16,6 +16,7 @@ import ru.monitoring.dto.nalog.InnResponse;
 import ru.monitoring.dto.nalog.SelfEmplResponse;
 import ru.monitoring.dto.rosfinmon.Result;
 import ru.monitoring.dto.rosfinmon.RosFinMonResponse;
+import ru.monitoring.model.ApiCloudBalance;
 import ru.monitoring.model.Report;
 
 import java.util.List;
@@ -101,6 +102,13 @@ public class SupplierRequestService {
             rosFinMonResponse.setResult(results);
         }
     }
+    public ApiCloudBalance getApiCloudBalance() {
+        MultiValueMap paramMap = new LinkedMultiValueMap();
+        paramMap.add("type", "balance");
+        paramMap.add("token", API_CLOUD_TOKEN);
+        String response = apiCloudClient.getApiCloudResponse("/apilk.php", paramMap);
+        return JSON.isValid(response) ? JSON.parseObject(response, ApiCloudBalance.class) : new ApiCloudBalance();
+    }
 
     /**
      * Методы формирования запросов, передаваемых в клиент.<p>
@@ -118,7 +126,7 @@ public class SupplierRequestService {
         paramMap.add("birthdate", personInfo.getDateOfBirth());
         paramMap.add("region", "-1");
         paramMap.add("searchAll", "1");
-        paramMap.add("onlyActual", "0"); //TODO проверить - завершенные делопроизводства 0 или 1? И Нужны ли завершенные?
+        paramMap.add("onlyActual", "0"); //0 - все, включая погашенные, 1 - только текущие
         paramMap.add("token", API_CLOUD_TOKEN);
 
         log.info("Request a report to FSSP by parameters: {}", paramMap);
@@ -146,12 +154,12 @@ public class SupplierRequestService {
         if (inn.getInn() == null) {
             SelfEmplResponse response = new SelfEmplResponse();
             response.setMessage("Запрос не выполнен, т.к. ИНН не был найден.");
-            log.info("The request was not executed.");
+            log.info("The request (SelfEmplResponse) was not executed.");
             return response;
         }
         MultiValueMap paramMap = new LinkedMultiValueMap();
         paramMap.add("type", "npd");
-        paramMap.add("inn", inn);
+        paramMap.add("inn", inn.getInn());
         paramMap.add("token", API_CLOUD_TOKEN);
 
         log.info("Request a report to FNS by parameters: {}", paramMap);
@@ -220,13 +228,13 @@ public class SupplierRequestService {
         if (inn.getInn() == null) {
             BankruptResponse response= new BankruptResponse();
             response.setMessage("Запрос не выполнен, т.к. ИНН не был найден.");
-            log.info("The request was not executed.");
+            log.info("The request to bankrot.fedresurs was not executed.");
             return response;
         }
 
         MultiValueMap paramMap = new LinkedMultiValueMap();
         paramMap.add("type", "searchString");
-        paramMap.add("string", inn);
+        paramMap.add("string", inn.getInn());
         paramMap.add("legalStatus", "fiz");
         paramMap.add("token", API_CLOUD_TOKEN);
         log.info("Request a report to bankrot.fedresurs by parameters: {}", paramMap);

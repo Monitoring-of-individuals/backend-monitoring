@@ -10,12 +10,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ResponseDto {
 
-    private Integer status; // Статус запрос
-    private Inquiry inquiry; // Информация о запросе
+    protected Integer status; // Статус запрос
+    protected Inquiry inquiry; // Информация о запросе
     // В случае отрицательного результата проверки или ошибки
-    private String error;
-    private String message;
+    protected String error;
+    protected String message;
     // В случае если 404 TIME_MAX_CONNECT - Достигнуто максимальное количество коннектов, при которых ресурс не вернул результата
     @JSONField(name = "errormsg")
-    private String errorMsg;
+    protected String errorMsg;
 }
