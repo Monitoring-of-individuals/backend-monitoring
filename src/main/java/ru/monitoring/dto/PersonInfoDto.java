@@ -17,19 +17,19 @@ import static ru.monitoring.utils.Messages.DRIVER_REGEXP_MESSAGE;
 @Setter
 @ToString
 @Builder
-public class PersonIfoDto {
+public class PersonInfoDto {
 
     @NotBlank
     @Size(min = 1, message = LAST_NAME_MESSAGES)
-    @Pattern(regexp = "^[а-яёА-ЯЁ]+(?:-[а-яёА-ЯЁ]+)*$", message = LAST_NAME_REGEXP_MESSAGE)
+//    @Pattern(regexp = "^[а-яёА-ЯЁ]+(?:-[а-яёА-ЯЁ]+)*$", message = LAST_NAME_REGEXP_MESSAGE)
     private String lastName;
 
     @NotBlank
     @Size(min = 1, message = FIRST_NAME_MESSAGES)
-    @Pattern(regexp = "^[а-яёА-ЯЁ]+(?:-[а-яёА-ЯЁ]+)*$", message = FIRST_NAME_REGEXP_MESSAGE)
+//    @Pattern(regexp = "^[а-яёА-ЯЁ]+(?:-[а-яёА-ЯЁ]+)*$", message = FIRST_NAME_REGEXP_MESSAGE)
     private String firstName;
 
-    @Pattern(regexp = "^[а-яёА-ЯЁ]+(?:-[а-яёА-ЯЁ]+)*$", message = FIRST_NAME_REGEXP_MESSAGE)
+//    @Pattern(regexp = "^[а-яёА-ЯЁ]+(?:-[а-яёА-ЯЁ]+)*$", message = FIRST_NAME_REGEXP_MESSAGE)
     private String fatherName;
 
     @NotNull
@@ -39,11 +39,11 @@ public class PersonIfoDto {
 
     @NotBlank
     @Size (min = 10, max = 10, message = PASSPORT_MESSAGE)
-    @Pattern(regexp = "[0-9]*", message = PASSPORT_REGEXP_MESSAGE)
+//    @Pattern(regexp = "[0-9]*", message = PASSPORT_REGEXP_MESSAGE)
     private String passport;
 
     @Size (min = 10, max = 10, message = DRIVER_MESSAGE)
-    @Pattern(regexp = "[0-9]*", message = DRIVER_REGEXP_MESSAGE)
+//    @Pattern(regexp = "[0-9]*", message = DRIVER_REGEXP_MESSAGE)
     private String drivingLicence;
 
     @Past

@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.monitoring.exceptions.ValidateException;
-import ru.monitoring.dto.PersonIfoDto;
+import ru.monitoring.dto.PersonInfoDto;
 import ru.monitoring.model.Report;
 import ru.monitoring.service.SupplierRequestService;
 
@@ -30,7 +30,7 @@ public class ReportController {
 
     @GetMapping("/report")
     public Report getReportByParam(/*@PathVariable(value = "userId") Long userId,*/
-                                   @Valid @RequestBody PersonIfoDto dto/*,
+                                   @Valid @RequestBody PersonInfoDto dto/*,
                                    @RequestParam String token*/) {
         log.info("Get report by parameters: {}", dto);
 

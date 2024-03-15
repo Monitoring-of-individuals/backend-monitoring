@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import ru.monitoring.clients.ApiCloudClient;
-import ru.monitoring.dto.PersonIfoDto;
+import ru.monitoring.dto.PersonInfoDto;
 import ru.monitoring.dto.fedres_banckrupt.BankruptResponse;
 import ru.monitoring.dto.fssp.FsspResponse;
 import ru.monitoring.dto.gibdd.GibddResponse;
@@ -44,12 +44,8 @@ public class SupplierRequestService {
      * В приватных методах происходит обработка:<p>
      * - в случае пустой строки возвращается пустой объект соответствующего класса;<p>
      * - в случае валидного JSON объекта возвращается результат парсинга JSON объекта в объект соответствующего класса<p>
-     * <p>
-     * Дальнейшее развитие класса SupplierRequestService и вспомогательного класса ReportBuilder:<p>
-     * - добавить логику обработки ошибок по номенклатуре поставщика;<p>
-     * - добавить по необходимости логику сборки отчета.<p>
      */
-    public Report getReport(PersonIfoDto personInfo) {
+    public Report getReport(PersonInfoDto personInfo) {
 
         FsspResponse fsspResponse = getEnfProcessingsCheck(personInfo);
         log.info("Response received {}", fsspResponse);
@@ -117,7 +113,7 @@ public class SupplierRequestService {
      * Если клиент вернул null и парсинг невозможен - возвращают пустой объект соответствующего класса<p>
      */
 
-    private FsspResponse getEnfProcessingsCheck(PersonIfoDto personInfo) {
+    private FsspResponse getEnfProcessingsCheck(PersonInfoDto personInfo) {
         MultiValueMap paramMap = new LinkedMultiValueMap();
         paramMap.add("type", "physical");
         paramMap.add("lastname", personInfo.getLastName());
@@ -134,7 +130,7 @@ public class SupplierRequestService {
         return JSON.isValid(response) ? JSON.parseObject(response, FsspResponse.class) : new FsspResponse();
     }
 
-    private InnResponse getInnCheck(PersonIfoDto personInfo) {
+    private InnResponse getInnCheck(PersonInfoDto personInfo) {
         String seriesNumber = personInfo.getPassport().trim();
         MultiValueMap paramMap = new LinkedMultiValueMap();
         paramMap.add("type", "inn");
@@ -151,6 +147,12 @@ public class SupplierRequestService {
     }
 
     private SelfEmplResponse getSelfEmplCheck(InnResponse inn) {
+        if (inn == null) {
+            SelfEmplResponse response = new SelfEmplResponse();
+            response.setMessage("Запрос не выполнен, т.к. поиск ИНН не был произведен.");
+            log.info("The request (SelfEmplResponse) was not executed.");
+            return response;
+        }
         if (inn.getInn() == null) {
             SelfEmplResponse response = new SelfEmplResponse();
             response.setMessage("Запрос не выполнен, т.к. ИНН не был найден.");
@@ -167,7 +169,7 @@ public class SupplierRequestService {
         return JSON.isValid(response) ? JSON.parseObject(response, SelfEmplResponse.class) : new SelfEmplResponse();
     }
 
-    private PassportCheckResponse getPassportCheck(PersonIfoDto personInfo) {
+    private PassportCheckResponse getPassportCheck(PersonInfoDto personInfo) {
         String series = personInfo.getPassport().substring(0, 4);
         String number = personInfo.getPassport().substring(4);
 
@@ -182,7 +184,7 @@ public class SupplierRequestService {
         return JSON.isValid(response) ? JSON.parseObject(response, PassportCheckResponse.class) : new PassportCheckResponse();
     }
 
-    private GibddResponse getDriverIdCheck(PersonIfoDto personInfo) {
+    private GibddResponse getDriverIdCheck(PersonInfoDto personInfo) {
         if (personInfo.getDrivingLicence() == null || personInfo.getDateOfLicence() == null) {
             GibddResponse gibddResponse = new GibddResponse();
             gibddResponse.setMessage("В запросе не были предоставлены полные необходимые данные по водительскому удостоверению");
@@ -201,7 +203,7 @@ public class SupplierRequestService {
         return JSON.isValid(response) ? JSON.parseObject(response, GibddResponse.class) : new GibddResponse();
     }
 
-    private RosFinMonResponse getTerrorExtrCheck(PersonIfoDto personInfo) {
+    private RosFinMonResponse getTerrorExtrCheck(PersonInfoDto personInfo) {
         String name = personInfo.getFatherName() != null ? personInfo.getLastName().toUpperCase() + " " +
                 personInfo.getFirstName().toUpperCase() + " " + personInfo.getFatherName().toUpperCase() :
                 personInfo.getLastName().toUpperCase() + " " + personInfo.getFirstName().toUpperCase();
@@ -217,7 +219,6 @@ public class SupplierRequestService {
                 : new RosFinMonResponse();
 
         if (rosFinMonResponse.getStatus() != null) {
-
             checkingEqualityBirthDate(rosFinMonResponse, personInfo.getDateOfBirth());
         }
 
@@ -225,6 +226,12 @@ public class SupplierRequestService {
     }
 
     private BankruptResponse getBankruptCheck(InnResponse inn) {
+        if (inn == null) {
+            BankruptResponse response = new BankruptResponse();
+            response.setMessage("Запрос не выполнен, т.к. поиск ИНН не был произведен.");
+            log.info("The request bankrot.fedresurs was not executed.");
+            return response;
+        }
         if (inn.getInn() == null) {
             BankruptResponse response= new BankruptResponse();
             response.setMessage("Запрос не выполнен, т.к. ИНН не был найден.");

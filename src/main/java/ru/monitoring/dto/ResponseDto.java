@@ -1,11 +1,12 @@
 package ru.monitoring.dto;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+@Setter
+@Getter
+@Builder
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 public class ResponseDto {

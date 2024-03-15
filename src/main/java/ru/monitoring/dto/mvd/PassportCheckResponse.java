@@ -8,7 +8,6 @@ import ru.monitoring.dto.ResponseDto;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class PassportCheckResponse extends ResponseDto {
 
     @JSONField(name = "rezultat")

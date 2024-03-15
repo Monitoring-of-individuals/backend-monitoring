@@ -9,10 +9,23 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
 public class BankruptResponse extends ResponseDto {
 
     private Integer totalCount; // Количество найденных записей
     private List<Rez> rez;
     private Integer num; // Количество найденных записей
+
+    @Override
+    public String toString() {
+        return "BankruptResponse{" +
+                "totalCount=" + totalCount +
+                ", rez=" + rez +
+                ", num=" + num +
+                ", status=" + status +
+                ", inquiry=" + inquiry +
+                ", error='" + error + '\'' +
+                ", message='" + message + '\'' +
+                ", errorMsg='" + errorMsg + '\'' +
+                '}';
+    }
 }
