@@ -82,7 +82,7 @@ spring:
           ssl:
             enable: true
 app:
-  # Секретный ключ для подписания токенов
+  # Секретный  ключ для подписания токенов
   token:
     signing:
       key: ${SECURITY_KEY}
