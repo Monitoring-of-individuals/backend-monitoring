@@ -1,0 +1,49 @@
+spring:
+  # Конифиг для деплоя
+  config:
+    activate:
+      on-profile: deploy
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQL10Dialect
+        format_sql: true
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+  sql:
+    init:
+      mode: always
+
+  datasource:
+    driverClassName: org.postgresql.Driver
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+
+  mail:
+    host: ${SMTP_SERVER}
+    port: ${MAIL_SERVER_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
+app:
+  # Секретный ключ для подписания токенов
+  token:
+    signing:
+      key: ${SECURITY_KEY}
+  notifications:
+    # Отправляем уведомления на почту или нет
+    enabled: false
+    report:
+      service:
+        url: ${REPORT_SERVICE_URL}
