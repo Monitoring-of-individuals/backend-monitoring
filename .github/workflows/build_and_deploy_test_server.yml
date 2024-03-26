@@ -117,7 +117,7 @@ jobs:
           host: ${{ secrets.TEST_SERVER_HOST }}
           username: ${{ secrets.TEST_SERVER_USERNAME }}
           key: ${{ secrets.SSH_KEY_TEST_SERVER }}
-          source: "infra/docker-compose-test-server.yml, infra/nginx.conf"
+          source: "infra/docker-compose-test-server.yml, infra/nginx_prod.conf"
           target: /home/code/
 
       - name: Create .env & launch docker compose
@@ -133,6 +133,7 @@ jobs:
             docker image rm redis:alpine
             docker image rm postgres:13.3-alpine
             docker image prune
+            docker volume prune
             rm .env
             cat > .env << EOT
             SPRING_PROFILES_ACTIVE=${{ secrets.SPRING_PROFILES_ACTIVE }}
