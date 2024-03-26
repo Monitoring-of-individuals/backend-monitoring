@@ -1,0 +1,71 @@
+volumes:
+  postgres_volume:
+  frontend_volume:
+
+services:
+
+  backend_gateway:
+    container_name: backend_gateway
+    build:
+      context: ../
+      dockerfile: infra/Dockerfile_backend_gateway
+    depends_on:
+      - postgres
+      - redis
+    env_file:
+      - .env
+    expose:
+      - 8080
+    
+  backend_report:
+    container_name: backend_report
+    build:
+      context: ../
+      dockerfile: infra/Dockerfile_backend_report
+    depends_on:
+      - postgres
+      - redis
+    env_file:
+      - .env
+    expose:
+      - 9090
+
+  frontend:
+    container_name: frontend
+    build:
+      context: ../
+      dockerfile: infra/Dockerfile_frontend
+    volumes:
+        - frontend_volume:/app/
+
+  postgres:
+    image: postgres:13.3-alpine
+    container_name:  postgres
+    restart: always
+    volumes:
+       - postgres_volume:/var/lib/postgresql/data/
+    expose:
+      - 5432
+    env_file:
+      - .env
+
+  redis:
+    container_name: redis
+    restart: unless-stopped
+    image: redis:alpine
+    expose:
+      - 6379
+
+  nginx:
+    container_name: nginx
+    depends_on:
+      - backend_gateway
+      - backend_report
+      - frontend
+    restart: unless-stopped
+    image: nginx:1.25
+    volumes:
+      - frontend_volume:/opt/monitoring/frontend/build/ 
+    ports:
+      - "80:80"
+      - "443:443"
