@@ -150,6 +150,7 @@ jobs:
             REDIS_PORT=${{ secrets.REDIS_PORT }}
             SECURITY_KEY=${{ secrets.SECURITY_KEY }}
             SMTP_SERVER=${{ secrets.SMTP_SERVER }}
+            REPORT_SERVICE_URL=${{ secrets.REPORT_SERVICE_URL }}
             EOT
             cat > fullchain.pem << EOT
             ${{ secrets.TEST_SERVER_FULLCHAIN_PEM }}
