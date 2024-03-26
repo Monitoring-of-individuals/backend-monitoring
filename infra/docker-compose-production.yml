@@ -1,0 +1,48 @@
+volumes:
+  postgres_volume:
+  static_volume:
+
+services:
+
+  backend:
+    container_name: backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+      - redis
+    env_file:
+      - .env
+    expose:
+      - 8080
+
+  postgres:
+    image: postgres:13.3-alpine
+    container_name:  postgres
+    restart: always
+    volumes:
+       - postgres_volume:/var/lib/postgresql/data/
+    expose:
+      - 5432
+    env_file:
+      - .env
+
+  redis:
+    container_name: redis
+    restart: unless-stopped
+    image: redis:alpine
+    expose:
+      - 6379
+
+  nginx:
+    container_name: nginx
+    depends_on:
+      - backend
+    restart: unless-stopped
+    image: nginx:1.25
+    volumes:
+      - /home/capwell/monitoring-of-individuals/frontend/build/:/etc/nginx/html/static/
+      - /home/capwell/nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "80:80"
