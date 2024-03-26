@@ -1,10 +1,10 @@
 name: Build
 
-# on:
-#   push:
-#     branches: [ deploy ]
-#   pull_request:
-#     branches: [ deploy ]
+on:
+  push:
+    branches: [ deploy ]
+  pull_request:
+    branches: [ deploy ]
 
 jobs:
   build_backend:
@@ -100,7 +100,7 @@ jobs:
           tags: ${{ secrets.DOCKER_USERNAME_TEST_SERVER }}/monitoring_frontend:latest
 
   deploy_backend:
-    name: Deploy to test server
+    name: Deploy to prod server
     runs-on: ubuntu-latest
     needs: 
       - build_backend
@@ -114,21 +114,21 @@ jobs:
       - name: Copying infra files
         uses: appleboy/scp-action@master
         with:
-          host: ${{ secrets.TEST_SERVER_HOST }}
-          username: ${{ secrets.TEST_SERVER_USERNAME }}
-          key: ${{ secrets.SSH_KEY_TEST_SERVER }}
-          source: "infra/docker-compose-test-server.yml, infra/nginx_prod.conf"
+          host: ${{ secrets.PROD_SERVER_HOST }}
+          username: ${{ secrets.PROD_SERVER_USERNAME }}
+          key: ${{ secrets.SSH_KEY_PROD_SERVER }}
+          source: "infra/docker-compose-prod-server.yml, infra/nginx_prod.conf"
           target: /home/code/
 
       - name: Create .env & launch docker compose
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.TEST_SERVER_HOST }}
-          username: ${{ secrets.TEST_SERVER_USERNAME }}
-          key: ${{ secrets.SSH_KEY_TEST_SERVER }}
+          host: ${{ secrets.PROD_SERVER_HOST }}
+          username: ${{ secrets.PROD_SERVER_USERNAME }}
+          key: ${{ secrets.SSH_KEY_PROD_SERVER }}
           script: |
             cd /home/code/infra/
-            docker compose -f docker-compose-test-server.yml down
+            docker compose -f docker-compose-prod-server.yml down
             docker image rm ${{ secrets.DOCKER_USERNAME_TEST_SERVER }}/monitoring_backend:latest
             docker image rm redis:alpine
             docker image rm postgres:13.3-alpine
@@ -152,17 +152,4 @@ jobs:
             SECURITY_KEY=${{ secrets.SECURITY_KEY }}
             SMTP_SERVER=${{ secrets.SMTP_SERVER }}
             REPORT_SERVICE_URL=${{ secrets.REPORT_SERVICE_URL }}
-            EOT
-            cat > fullchain.pem << EOT
-            ${{ secrets.TEST_SERVER_FULLCHAIN_PEM }}
-            EOT
-            cat > privkey.pem << EOT
-            ${{ secrets.TEST_SERVER_PRIVKEY_PEM }}
-            EOT
-            cat > options-ssl-nginx.conf << EOT
-            ${{ secrets.TEST_SERVER_OPTIONS_SSL_NGINX }}
-            EOT
-            cat > ssl-dhparams.pem << EOT
-            ${{ secrets.TEST_SERVER_DHPARAMS_PEM }}
-            EOT
-            docker compose -f docker-compose-test-server.yml up -d
+            docker compose -f docker-compose-prod-server.yml up -d
