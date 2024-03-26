@@ -16,15 +16,14 @@ import org.thymeleaf.context.Context;
 import ru.monitoring.dto.SignInUserRequestDto;
 import ru.monitoring.dto.SignUpUserRequestDto;
 import ru.monitoring.dto.UserResponseDto;
+import ru.monitoring.dto.internal.UserDtoWithTokenInternal;
 import ru.monitoring.mapper.UserMapper;
-import ru.monitoring.model.RevokedToken;
 import ru.monitoring.model.User;
 import ru.monitoring.repository.RevokedTokenRepository;
 import ru.monitoring.service.IMailService;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Date;
 
 /**
  * Сервис аутентификации, отвечающий за регистрацию и вход пользователей.
@@ -34,12 +33,11 @@ import java.util.Date;
 @Slf4j
 public class AuthenticationService {
 
-    public static final String BEARER_PREFIX = "Bearer ";
-    public static final String HEADER_NAME = "Authorization";
     private static final String WELCOME_EMAIL_MESSAGE_TEMPLATE_HTML
             = "classpath:/templates/registration_done_email_template.html";
     private final UserAuthService userAuthService;
     private final JwtService jwtService;
+    private final RevokedTokenService revokedTokenService;
     private final UserMapper userMapper;
     private final AuthenticationManager authenticationManager;
     private final RevokedTokenRepository revokedTokenRepository;
@@ -60,13 +58,15 @@ public class AuthenticationService {
      * @return UserResponseDto DTO, содержащий информацию о зарегистрированном пользователе, включая JWT токен.
      */
     @Transactional
-    public UserResponseDto signUp(SignUpUserRequestDto signUpUserRequestDto) {
+    public UserDtoWithTokenInternal signUp(SignUpUserRequestDto signUpUserRequestDto) {
         User user = userMapper.convertSignUpUserDtoToUser(signUpUserRequestDto);
         User returnedUser = userAuthService.create(user);
         UserResponseDto userResponseDto = userMapper.convertUserToUserResponseDto(user);
         String jwt = jwtService.generateToken(returnedUser);
-        userResponseDto.setToken(jwt);
-
+        UserDtoWithTokenInternal userDtoWithTokenInternal = UserDtoWithTokenInternal.builder()
+                .userResponseDto(userResponseDto)
+                .token(jwt)
+                .build();
         // Отсылка уведомления на почту по необходимости
         Resource templateResource = resourceLoader.getResource(WELCOME_EMAIL_MESSAGE_TEMPLATE_HTML);
         if (shouldNotifyUponSignUp) {
@@ -85,7 +85,7 @@ public class AuthenticationService {
             mailService.sendMail(fromEmail, user.getEmail(), "Регистрация", message);
         }
 
-        return userResponseDto;
+        return userDtoWithTokenInternal;
     }
 
     /**
@@ -94,19 +94,29 @@ public class AuthenticationService {
      * @param signInUserRequestDto DTO для входа пользователя.
      * @return JwtResponse Объект ответа, содержащий JWT токен для аутентифицированного пользователя.
      */
-    public UserResponseDto signIn(SignInUserRequestDto signInUserRequestDto) {
+    public UserDtoWithTokenInternal signIn(SignInUserRequestDto signInUserRequestDto,
+                                           String oldToken) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(signInUserRequestDto.getEmail(),
                         signInUserRequestDto.getPassword()));
 
         UserDetails user = userAuthService.userDetailsService()
                 .loadUserByUsername(signInUserRequestDto.getEmail());
-
+        // Если нам передали старый токен, забаним его
+        if (oldToken != null) {
+            revokedTokenService.revokeToken(oldToken);
+        }
         String jwt = jwtService.generateToken(user);
+
         UserResponseDto userResponseDto = userMapper.convertUserToUserResponseDto((User) user);
-        userResponseDto.setToken(jwt);
+
+        UserDtoWithTokenInternal userDtoWithTokenInternal = UserDtoWithTokenInternal.builder()
+                .userResponseDto(userResponseDto)
+                .token(jwt)
+                .build();
+
         log.info("Пользователь {} успешно прошел авторизацию", user.getUsername());
-        return userResponseDto;
+        return userDtoWithTokenInternal;
     }
 
     /**
@@ -115,22 +125,6 @@ public class AuthenticationService {
      * @param authToken
      */
     public void signOut(String authToken) {
-        // Обрезаем префикс и получаем токен
-        String jwt = authToken.substring(BEARER_PREFIX.length());
-
-        // Добавляем токен в Redis хранилище забаненых ключей
-        Date iat = jwtService.extractIssuedAt(jwt);
-        Date exp = jwtService.extractExpiration(jwt);
-        String email = jwtService.extractUserName(jwt);
-        long ttl = (exp.getTime() - System.currentTimeMillis()) / 1000; // TTL в секундах
-
-        RevokedToken revokedToken = RevokedToken.builder()
-                .token(jwt)
-                .email(email)
-                .iat(iat)
-                .exp(exp)
-                .ttl(ttl)
-                .build();
-        revokedTokenRepository.save(revokedToken);
+        revokedTokenService.revokeToken(authToken);
     }
 }

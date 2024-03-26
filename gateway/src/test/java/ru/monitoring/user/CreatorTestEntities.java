@@ -39,7 +39,6 @@ public class CreatorTestEntities {
                 .firstName("FirstName")
                 .lastName("LastName")
                 .email("lastName@email.com")
-                .token(getToken())
                 .build();
     }
 

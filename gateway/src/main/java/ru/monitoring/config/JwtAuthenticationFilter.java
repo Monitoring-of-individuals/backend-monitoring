@@ -2,10 +2,12 @@ package ru.monitoring.config;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
@@ -24,10 +26,10 @@ import java.io.IOException;
  * Проверяет наличие JWT в запросах и аутентифицирует пользователя при его наличии и валидности.
  */
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    public static final String BEARER_PREFIX = "Bearer ";
-    public static final String HEADER_NAME = "Authorization";
+
     private final JwtService jwtService;
     private final UserAuthService userAuthService;
 
@@ -43,15 +45,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain)
             throws ServletException, IOException {
-        // Получение токена из заголовка запроса.
-        String authHeader = request.getHeader(HEADER_NAME);
-        if (StringUtils.isEmpty(authHeader) || !StringUtils.startsWith(authHeader, BEARER_PREFIX)) {
+        Cookie[] cookies = request.getCookies();
+        String jwt = null;
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("AuthToken".equals(cookie.getName())) {
+                    jwt = cookie.getValue();
+                    log.info("jwt from cookie {}", jwt);
+                    break;
+                }
+            }
+        }
+
+        if (StringUtils.isEmpty(jwt)) {
             filterChain.doFilter(request, response);
             return;
         }
-
-        // Обрезаем префикс и получаем имя пользователя из токена
-        String jwt = authHeader.substring(BEARER_PREFIX.length());
         String username = jwtService.extractUserName(jwt);
 
         // Установка контекста аутентификации, если токен валиден и пользователь еще не аутентифицирован.
