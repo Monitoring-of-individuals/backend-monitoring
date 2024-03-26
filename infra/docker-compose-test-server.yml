@@ -67,3 +67,4 @@ services:
       - /home/code/infra/ssl-dhparams.pem:/etc/ssl/ssl-dhparams.pem
     ports:
       - "80:80"
+      - "443:443"
