@@ -8,7 +8,7 @@ on: workflow_dispatch
 
 jobs:
   build_backend:
-    name: Build jar file and create image
+    name: Build gateway jar & create image
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -34,16 +34,23 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: ./
-          file: infra/Dockerfile_backend
+          file: infra/Dockerfile_backend_gateway
           push: true
           tags: ${{ secrets.DOCKER_USERNAME_TEST_SERVER }}/monitoring_gateway:latest
-      - name: Push to dckerhub report service
+      - name: Push to dockerhub report service
         uses: docker/build-push-action@v4
         with:
           context: ./
-          file: infra/Dockerfile_backend
+          file: infra/Dockerfile_backend_gateway
           push: true
           tags: ${{ secrets.DOCKER_USERNAME_TEST_SERVER }}/monitoring_gateway:latest
+      - name: Push to dockerhub report service
+        uses: docker/build-push-action@v4
+        with:
+          context: ./
+          file: infra/Dockerfile_backend_report
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME_TEST_SERVER }}/monitoring_report:latest
 
   # build_frontend:
   #   runs-on: ubuntu-latest

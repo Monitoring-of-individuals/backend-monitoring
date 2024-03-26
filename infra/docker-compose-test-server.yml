@@ -4,9 +4,9 @@ volumes:
 
 services:
 
-  backend:
-    container_name: backend
-    image: ghostblade3301/monitoring_backend:latest
+  backend_gateway:
+    container_name: backend_gateway
+    image: ghostblade3301/monitoring_gateway:latest
     depends_on:
       - postgres
       - redis
@@ -14,6 +14,17 @@ services:
       - .env
     expose:
       - 8080
+
+  backend_report:
+    container_name: backend_report
+    image: ghostblade3301/monitoring_report:latest
+    depends_on:
+      - postgres
+      - redis
+    env_file:
+      - .env
+    expose:
+      - 9090
 
   frontend:
     container_name: frontend
