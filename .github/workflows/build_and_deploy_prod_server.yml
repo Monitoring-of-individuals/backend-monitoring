@@ -152,4 +152,5 @@ jobs:
             SECURITY_KEY=${{ secrets.SECURITY_KEY }}
             SMTP_SERVER=${{ secrets.SMTP_SERVER }}
             REPORT_SERVICE_URL=${{ secrets.REPORT_SERVICE_URL }}
+            EOT
             docker compose -f docker-compose-prod-server.yml up -d
