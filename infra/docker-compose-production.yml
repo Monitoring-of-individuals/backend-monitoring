@@ -38,7 +38,8 @@ services:
   nginx:
     container_name: nginx
     depends_on:
-      - backend
+      - backend_gateway
+      - backend_report
     restart: unless-stopped
     image: nginx:1.25
     volumes:
