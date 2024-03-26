@@ -30,13 +30,20 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME_TEST_SERVER }}
           password: ${{ secrets.DOCKER_PASSWORD_TEST_SERVER }}
-      - name: Push to Dockerhub
+      - name: Push to dockerhub gateway service
         uses: docker/build-push-action@v4
         with:
           context: ./
           file: infra/Dockerfile_backend
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME_TEST_SERVER }}/monitoring_backend:latest
+          tags: ${{ secrets.DOCKER_USERNAME_TEST_SERVER }}/monitoring_gateway:latest
+      - name: Push to dckerhub report service
+        uses: docker/build-push-action@v4
+        with:
+          context: ./
+          file: infra/Dockerfile_backend
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME_TEST_SERVER }}/monitoring_gateway:latest
 
   # build_frontend:
   #   runs-on: ubuntu-latest
