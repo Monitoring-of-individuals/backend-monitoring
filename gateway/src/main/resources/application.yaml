@@ -44,6 +44,6 @@ app:
   notifications:
     # Отправляем уведомления на почту или нет
     enabled: false
-    report:
-      service:
-        url: ${REPORT_SERVICE_URL}
+  report:
+    service:
+      url: ${REPORT_SERVICE_URL}
