@@ -41,13 +41,6 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: ./
-          file: infra/Dockerfile_backend_gateway
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME_TEST_SERVER }}/monitoring_gateway:latest
-      - name: Push to dockerhub report service
-        uses: docker/build-push-action@v4
-        with:
-          context: ./
           file: infra/Dockerfile_backend_report
           push: true
           tags: ${{ secrets.DOCKER_USERNAME_TEST_SERVER }}/monitoring_report:latest
