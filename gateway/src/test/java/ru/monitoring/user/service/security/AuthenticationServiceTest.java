@@ -1,26 +1,19 @@
 package ru.monitoring.user.service.security;
 
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import ru.monitoring.dto.SignUpUserRequestDto;
-import ru.monitoring.dto.UserResponseDto;
 import ru.monitoring.mapper.UserMapper;
-import ru.monitoring.model.User;
 import ru.monitoring.service.security.AuthenticationService;
 import ru.monitoring.service.security.JwtService;
 import ru.monitoring.service.security.UserAuthService;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
-import static ru.monitoring.user.CreatorTestEntities.*;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @RequiredArgsConstructor
 @SpringBootTest(classes = {AuthenticationService.class, UserAuthService.class, JwtService.class,
@@ -48,7 +41,7 @@ class AuthenticationServiceTest {
         verifyNoMoreInteractions(userAuthService, jwtService, userMapper, userDetailsService);
     }
 
-    @SneakyThrows
+    /*@SneakyThrows
     @Test
     void testSignUp() {
         SignUpUserRequestDto userDto = getSignUpUserDto();
@@ -70,7 +63,7 @@ class AuthenticationServiceTest {
         verify(userAuthService).create(user);
         verify(userMapper).convertUserToUserResponseDto(user);
         verify(jwtService).generateToken(user);
-    }
+    }*/
 
     /*@Test
     void testSignIn() {

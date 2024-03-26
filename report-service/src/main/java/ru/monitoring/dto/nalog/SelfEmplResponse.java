@@ -18,7 +18,7 @@ public class SelfEmplResponse extends ResponseDto {
     private String date;
     @JSONField(name = "NPD")
     private Integer npd;
-            // Статус НПД (1 - является налогоплательщиком на профессиональный доход, 0 - не является)
+    // Статус НПД (1 - является налогоплательщиком на профессиональный доход, 0 - не является)
 
     @Override
     public String toString() {
