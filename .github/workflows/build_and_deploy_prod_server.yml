@@ -1,10 +1,11 @@
 name: Build
 
 on:
-  push:
-    branches: [ deploy ]
   pull_request:
-    branches: [ deploy ]
+    types:
+      - closed
+    branches:
+      - deploy
 
 jobs:
   build_backend:
