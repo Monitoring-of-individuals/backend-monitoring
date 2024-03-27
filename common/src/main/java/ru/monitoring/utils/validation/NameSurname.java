@@ -1,4 +1,4 @@
-package ru.monitoring.annotation;
+package ru.monitoring.utils.validation;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
@@ -7,10 +7,12 @@ import java.lang.annotation.*;
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = PasswordValidator.class)
+@Constraint(validatedBy = NameSurnameValidator.class)
 @Documented
-public @interface Password {
-    String message() default "Пароль не соответствует требованиям";
+public @interface NameSurname {
+    String message() default "Имя или фамилия не соответствуют требованиям";
+
     Class<?>[] groups() default {};
+
     Class<? extends Payload>[] payload() default {};
 }
