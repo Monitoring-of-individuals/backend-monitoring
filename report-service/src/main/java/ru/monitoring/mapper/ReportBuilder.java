@@ -17,6 +17,9 @@ import ru.monitoring.dto.rosfinmon.RosFinMonDto;
 import ru.monitoring.dto.rosfinmon.RosFinMonResponse;
 import ru.monitoring.model.Report;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
 /**
  * Поскольку не все данные, поставляемые поставщиком по каждому запросу необходимо использовать в финальном отчете,
  * в данном классе происходит сборка финального отчета, включая маппинг объектов и замену ошибок на null.
@@ -29,6 +32,8 @@ public final class ReportBuilder {
     private GibddDto gibddResponse;
     private RosFinMonDto rosFinMonResponse;
     private BankruptDto bankruptResponse;
+    private Boolean isSuccess = false;
+    private BigDecimal reportPrice = new BigDecimal("0");
 
     public ReportBuilder() {
     }
@@ -40,47 +45,91 @@ public final class ReportBuilder {
     public ReportBuilder addFsspResponse(FsspResponse fsspResponse) {
         this.fsspResponse = checkingIfStatusNot200(fsspResponse) ? FsspMapper.toResponseDto(
                 fsspResponse) : null;
+        if (this.fsspResponse != null) {
+            this.isSuccess = true;
+            if (fsspResponse.getInquiry() != null) {
+                this.reportPrice = this.reportPrice.add(fsspResponse.getInquiry().getPrice());
+            }
+        }
         return this;
     }
 
     public ReportBuilder addInnResponse(InnResponse innResponse) {
         this.innResponse = checkingIfStatusNot200(innResponse) ? InnMapper.toResponseDto(
                 innResponse) : null;
+        if (this.innResponse != null) {
+            this.isSuccess = true;
+            if (innResponse.getInquiry() != null) {
+                this.reportPrice = this.reportPrice.add(innResponse.getInquiry().getPrice());
+            }
+        }
         return this;
     }
 
     public ReportBuilder addSelfEmplResponse(SelfEmplResponse selfEmplResponse) {
         this.selfEmplResponse = checkingIfStatusNot200(selfEmplResponse)
                 ? SelfEmplMapper.toResponseDto(selfEmplResponse) : null;
+        if (this.selfEmplResponse != null) {
+            this.isSuccess = true;
+            if (selfEmplResponse.getInquiry() != null) {
+                this.reportPrice = this.reportPrice.add(selfEmplResponse.getInquiry().getPrice());
+            }
+        }
         return this;
     }
 
     public ReportBuilder addPassportCheckResponse(PassportCheckResponse passportCheckResponse) {
         this.passportCheckResponse = checkingIfStatusNot200(passportCheckResponse)
                 ? PassportChecMapper.toResponseDto(passportCheckResponse) : null;
+        if (this.passportCheckResponse != null) {
+            this.isSuccess = true;
+            if (passportCheckResponse.getInquiry() != null) {
+                this.reportPrice = this.reportPrice.add(passportCheckResponse.getInquiry().getPrice());
+            }
+        }
         return this;
     }
 
     public ReportBuilder addGibddResponse(GibddResponse gibddResponse) {
         this.gibddResponse = checkingIfStatusNot200(gibddResponse) ? GibddMapper.toResponseDto(
                 gibddResponse) : null;
+        if (this.gibddResponse != null) {
+            this.isSuccess = true;
+            if (gibddResponse.getInquiry() != null) {
+                this.reportPrice = this.reportPrice.add(gibddResponse.getInquiry().getPrice());
+            }
+        }
         return this;
     }
 
     public ReportBuilder addRosFinMonResponse(RosFinMonResponse rosFinMonResponse) {
         this.rosFinMonResponse = checkingIfStatusNot200(rosFinMonResponse)
                 ? RosFinMonMapper.toResponseDto(rosFinMonResponse) : null;
+        if (this.rosFinMonResponse != null) {
+            this.isSuccess = true;
+            if (rosFinMonResponse.getInquiry() != null) {
+                this.reportPrice = this.reportPrice.add(rosFinMonResponse.getInquiry().getPrice());
+            }
+        }
         return this;
     }
 
     public ReportBuilder addBankruptResponse(BankruptResponse bankruptResponse) {
         this.bankruptResponse = checkingIfStatusNot200(bankruptResponse)
                 ? BankruptMapper.toResponseDto(bankruptResponse) : null;
+        if (this.bankruptResponse != null) {
+            this.isSuccess = true;
+            if (bankruptResponse.getInquiry() != null) {
+                this.reportPrice = this.reportPrice.add(bankruptResponse.getInquiry().getPrice());
+            }
+        }
         return this;
     }
 
     public Report build() {
         Report report = new Report();
+        report.setIsSuccess(isSuccess);
+        report.setReportDateTime(LocalDateTime.now());
         report.setFsspResponse(fsspResponse);
         report.setInnResponse(innResponse);
         report.setSelfEmplResponse(selfEmplResponse);
@@ -88,6 +137,7 @@ public final class ReportBuilder {
         report.setGibddResponse(gibddResponse);
         report.setRosFinMonResponse(rosFinMonResponse);
         report.setBankruptResponse(bankruptResponse);
+        report.setReportPrice(reportPrice);
         return report;
     }
 

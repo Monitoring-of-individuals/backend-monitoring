@@ -2,3 +2,23 @@ server:
   port: 9090
 apicloud:
   url: 'http://api-cloud.ru'
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQL10Dialect
+        format_sql: true
+  sql:
+    init:
+      mode: always
+  config:
+    activate:
+      on-profile: default
+  datasource:
+    driverClassName: org.h2.Driver
+    url: jdbc:h2:file:./db/user-db
+    username: user
+    password: password

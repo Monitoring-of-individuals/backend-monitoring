@@ -8,6 +8,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import ru.monitoring.clients.ApiCloudClient;
 import ru.monitoring.model.ApiCloudBalance;
+import ru.monitoring.repository.ReportsRepository;
+import ru.monitoring.repository.UserRepository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -21,10 +23,14 @@ class SupplierRequestServiceTest {
     private ApiCloudClient apiCloudClient;
     private SupplierRequestService service;
 
+    private ReportsRepository reportsRepository;
+
+    private UserRepository userRepository;
+
     @BeforeEach
     void beforeEach() {
         apiCloudClient = mock(ApiCloudClient.class);
-        service = new SupplierRequestService(apiCloudClient);
+        service = new SupplierRequestService(apiCloudClient, reportsRepository, userRepository);
     }
 
     @Test

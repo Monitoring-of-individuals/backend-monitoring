@@ -2,6 +2,8 @@ package ru.monitoring.dto;
 
 import lombok.*;
 
+import java.math.BigDecimal;
+
 // Информация о запросе
 @AllArgsConstructor
 @NoArgsConstructor
@@ -9,7 +11,7 @@ import lombok.*;
 @Setter
 @ToString
 public class Inquiry {
-    private float price;
+    private BigDecimal price;
     private double balance;
     private int speed;
     private int attempts;

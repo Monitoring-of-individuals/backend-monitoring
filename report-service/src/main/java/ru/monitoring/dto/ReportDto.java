@@ -1,4 +1,4 @@
-package ru.monitoring.model;
+package ru.monitoring.dto;
 
 import lombok.*;
 import ru.monitoring.dto.fedres_banckrupt.BankruptDto;
@@ -9,17 +9,15 @@ import ru.monitoring.dto.nalog.InnDto;
 import ru.monitoring.dto.nalog.SelfEmplDto;
 import ru.monitoring.dto.rosfinmon.RosFinMonDto;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-// Предварительный вид. Требует доработки.
+@Setter
+@Getter
+@Builder
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
-@ToString
-public class Report {
-
+public class ReportDto {
     private FsspDto fsspResponse;
     private InnDto innResponse;
     private SelfEmplDto selfEmplResponse;
@@ -29,5 +27,4 @@ public class Report {
     private BankruptDto bankruptResponse;
     private Boolean isSuccess; // если хотя бы одно из полей выше заполнено не null
     private LocalDateTime reportDateTime;
-    private BigDecimal reportPrice;
 }
