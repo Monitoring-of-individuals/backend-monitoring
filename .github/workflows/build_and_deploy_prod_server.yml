@@ -2,9 +2,9 @@ name: Build
 
 on:
   push:
-    branches: [ deploy ]
+    branches: [ fix_deploy ]
   pull_request:
-    branches: [ deploy ]
+    branches: [ fix_deploy ]
 
 jobs:
   build_backend:
