@@ -1,4 +1,4 @@
 apicloud:
   url: 'http://api-cloud.ru'
 server:
-  port: ${SERVER_PORT}
+  port: ${REPORT_SERVER_PORT}

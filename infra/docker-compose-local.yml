@@ -12,9 +12,6 @@ services:
       - postgres
       - redis
       - backend-report
-    environment:
-      - SERVER_PORT=8080
-      - REPORT_SERVICE_URL=http://backend-report:9090
     env_file:
       - .env
     expose:
@@ -28,8 +25,6 @@ services:
     depends_on:
       - postgres
       - redis
-    environment:
-      - SERVER_PORT=9090
     env_file:
       - .env
     expose:
