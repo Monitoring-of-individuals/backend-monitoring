@@ -4,8 +4,8 @@ volumes:
 
 services:
 
-  backend_gateway:
-    container_name: backend_gateway
+  backend-gateway:
+    container_name: backend-gateway
     build:
       context: ../
       dockerfile: infra/Dockerfile_backend_gateway
@@ -13,10 +13,13 @@ services:
       - postgres
       - redis
       - backend-report
+    environment:
+      - SERVER_PORT=8080
+      - REPORT_SERVICE_URL=http://backend-report:9090
     env_file:
       - .env
     expose:
-      - 80
+      - 8080
     
   backend-report:
     container_name: backend-report
@@ -26,10 +29,12 @@ services:
     depends_on:
       - postgres
       - redis
+    environment:
+      - SERVER_PORT=9090
     env_file:
       - .env
     expose:
-      - 80
+      - 9090
 
 #  frontend:
 #    container_name: frontend
@@ -60,7 +65,7 @@ services:
   nginx:
     container_name: nginx
     depends_on:
-      - backend_gateway
+      - backend-gateway
       - backend-report
     restart: unless-stopped
     image: nginx:1.25
