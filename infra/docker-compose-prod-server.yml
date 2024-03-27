@@ -4,7 +4,7 @@ volumes:
 
 services:
 
-  backend_gateway:
+  backend-gateway:
     container_name: backend-gateway
     image: ghostblade3301/monitoring_gateway:latest
     depends_on:
@@ -15,7 +15,7 @@ services:
     expose:
       - 80
 
-  backend_report:
+  backend-report:
     container_name: backend-report
     image: ghostblade3301/monitoring_report:latest
     depends_on:
