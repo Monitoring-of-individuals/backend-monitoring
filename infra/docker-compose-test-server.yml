@@ -13,7 +13,7 @@ services:
     env_file:
       - .env
     expose:
-      - 8080
+      - 80
 
   backend_report:
     container_name: backend_report
@@ -24,7 +24,7 @@ services:
     env_file:
       - .env
     expose:
-      - 9090
+      - 80
 
   frontend:
     container_name: frontend
