@@ -15,6 +15,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: deploy
+          submodules: recursive
+      - name: Clone last version of fronend
+        run: cd frontend && git checkout Develop
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
