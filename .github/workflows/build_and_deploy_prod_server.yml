@@ -1,10 +1,11 @@
 name: Build
 
 on:
-  push:
-    branches: [ deploy ]
   pull_request:
-    branches: [ deploy ]
+    types:
+      - closed
+    branches:
+      - deploy
 
 jobs:
   build_backend:
@@ -130,6 +131,16 @@ jobs:
             SECURITY_KEY=${{ secrets.SECURITY_KEY }}
             SMTP_SERVER=${{ secrets.SMTP_SERVER }}
             REPORT_SERVICE_URL=${{ secrets.REPORT_SERVICE_URL }}
+            EOT
+            EOT
+            cat > bundle.key << EOT
+            ${{ secrets.PROD_SERVER_BUNDLE_CRT }}
+            EOT
+            cat > ratproject.ru.key << EOT
+            ${{ secrets.PROD_SERVER_PRIVATE_KEY }}
+            EOT
+            cat > ratproject_root.crt << EOT
+            ${{ secrets.PROD_SERVER_ROOT_CRT }}
             EOT
             docker compose -f docker-compose-prod-server.yml up -d
 
