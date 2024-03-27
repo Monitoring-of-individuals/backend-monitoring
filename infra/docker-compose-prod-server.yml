@@ -53,8 +53,8 @@ services:
   nginx:
     container_name: nginx
     depends_on:
-      - backend_gateway
-      - backend_report
+      - backend-gateway
+      - backend-report
       - frontend
     restart: unless-stopped
     image: nginx:1.25

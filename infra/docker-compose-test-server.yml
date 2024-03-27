@@ -5,7 +5,7 @@ volumes:
 services:
 
   backend_gateway:
-    container_name: backend_gateway
+    container_name: backend-gateway
     image: ghostblade3301/monitoring_gateway:latest
     depends_on:
       - postgres
@@ -16,7 +16,7 @@ services:
       - 80
 
   backend_report:
-    container_name: backend_report
+    container_name: backend-report
     image: ghostblade3301/monitoring_report:latest
     depends_on:
       - postgres
@@ -53,8 +53,8 @@ services:
   nginx:
     container_name: nginx
     depends_on:
-      - backend_gateway
-      - backend_report
+      - backend-gateway
+      - backend-report
       - frontend
     restart: unless-stopped
     image: nginx:1.25
