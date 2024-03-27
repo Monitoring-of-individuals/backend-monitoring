@@ -96,7 +96,7 @@ jobs:
           host: ${{ secrets.TEST_SERVER_HOST }}
           username: ${{ secrets.TEST_SERVER_USERNAME }}
           key: ${{ secrets.SSH_KEY_TEST_SERVER }}
-          source: "infra/docker-compose-test-server.yml, infra/nginx_prod.conf"
+          source: "infra/docker-compose-test-server.yml, infra/nginx_test.conf"
           target: /home/code/
 
       - name: Create .env & launch docker compose
