@@ -1,10 +1,6 @@
 name: Build
 
-# on:
-#   push:
-#     branches: [ deploy ]
-#   pull_request:
-#     branches: [ deploy ]
+on: workflow_dispatch
 
 jobs:
   build_backend:

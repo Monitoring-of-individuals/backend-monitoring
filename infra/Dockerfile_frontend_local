@@ -1,0 +1,10 @@
+# Указываем базовый образ
+FROM node:18
+
+WORKDIR /app
+
+COPY ../frontend/ ./
+
+RUN npm ci
+
+CMD npm run start
