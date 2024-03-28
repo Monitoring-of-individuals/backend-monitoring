@@ -49,7 +49,7 @@ public class MailService implements IMailService {
                 helper.setFrom(from);
                 helper.setTo(to);
                 helper.setSubject("Успешная регистрация");
-                helper.setText(message);
+                helper.setText(message, true);
                 javaMailSender.send(mimeMessage);
             } catch (MessagingException e) {
                 throw new MailSendException(e.getMessage(), e.getCause());
@@ -86,7 +86,7 @@ public class MailService implements IMailService {
                 helper.setFrom(from);
                 helper.setTo(to);
                 helper.setSubject(subject);
-                helper.setText(message);
+                helper.setText(message, true);
                 javaMailSender.send(mimeMessage);
             } catch (MessagingException e) {
                 throw new MailSendException(e.getMessage(), e.getCause());
