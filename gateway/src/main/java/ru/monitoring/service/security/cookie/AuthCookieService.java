@@ -1,4 +1,4 @@
-package ru.monitoring.service.security;
+package ru.monitoring.service.security.cookie;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseCookie;

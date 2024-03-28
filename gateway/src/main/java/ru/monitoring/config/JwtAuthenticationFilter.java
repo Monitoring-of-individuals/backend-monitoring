@@ -16,8 +16,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import ru.monitoring.service.security.JwtService;
-import ru.monitoring.service.security.UserAuthService;
+import ru.monitoring.service.security.auth.UserAuthService;
+import ru.monitoring.service.security.token.JwtService;
 
 import java.io.IOException;
 

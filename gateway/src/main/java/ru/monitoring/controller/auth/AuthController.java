@@ -12,8 +12,8 @@ import ru.monitoring.dto.SignInUserRequestDto;
 import ru.monitoring.dto.SignUpUserRequestDto;
 import ru.monitoring.dto.UserResponseDto;
 import ru.monitoring.dto.internal.UserDtoWithTokenInternal;
-import ru.monitoring.service.security.AuthCookieService;
-import ru.monitoring.service.security.AuthenticationService;
+import ru.monitoring.service.security.auth.AuthenticationService;
+import ru.monitoring.service.security.cookie.AuthCookieService;
 
 @RequiredArgsConstructor
 @RestController
@@ -23,19 +23,21 @@ public class AuthController {
     private final AuthenticationService authenticationService;
     private final AuthCookieService authCookieService;
 
+    /**
+     * Эндпоинт принимает запрос на регистрацию
+     *
+     * @param signUpUserRequestDto
+     * @return
+     */
     @PostMapping("/sign-up")
-    public ResponseEntity<UserResponseDto> signUp(
+    public ResponseEntity<Void> signUp(
             @RequestBody @Valid SignUpUserRequestDto signUpUserRequestDto) {
         log.info("Получен запрос на регистрацию пользователя email {}",
                 signUpUserRequestDto.getEmail());
 
-        UserDtoWithTokenInternal userResponseDto = authenticationService.signUp(
-                signUpUserRequestDto);
-        ResponseCookie authCookie = authCookieService.getAuthCookie(userResponseDto);
-
-        return ResponseEntity.status(HttpStatus.CREATED) // Здесь мы меняем статус на 201
-                .header(HttpHeaders.SET_COOKIE, authCookie.toString())
-                .body(userResponseDto.getUserResponseDto());
+        authenticationService.signUp(signUpUserRequestDto);
+        return ResponseEntity.status(HttpStatus.ACCEPTED)
+                .build();
     }
 
     @PostMapping("/sign-in")

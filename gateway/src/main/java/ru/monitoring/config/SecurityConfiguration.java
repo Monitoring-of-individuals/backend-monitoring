@@ -16,7 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
-import ru.monitoring.service.security.UserAuthService;
+import ru.monitoring.service.security.auth.UserAuthService;
 
 import java.util.List;
 

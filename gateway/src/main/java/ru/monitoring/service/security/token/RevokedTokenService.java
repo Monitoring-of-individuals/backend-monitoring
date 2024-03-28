@@ -1,4 +1,4 @@
-package ru.monitoring.service.security;
+package ru.monitoring.service.security.token;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

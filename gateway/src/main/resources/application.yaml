@@ -50,3 +50,6 @@ app:
   report:
     service:
       url: ${REPORT_SERVICE_URL}
+  ez:
+    registration:
+      enabled: ${EZ_REG:false} # если true, то пользователю не обязательно подтверждать почту, ТОЛЬКО ДЛЯ ТЕСТОВ!

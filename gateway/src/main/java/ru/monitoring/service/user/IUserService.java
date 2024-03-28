@@ -1,4 +1,4 @@
-package ru.monitoring.service;
+package ru.monitoring.service.user;
 
 import ru.monitoring.model.User;
 

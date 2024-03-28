@@ -1,4 +1,4 @@
-package ru.monitoring.service.impl;
+package ru.monitoring.service.user.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -6,7 +6,7 @@ import ru.monitoring.exception.ResourceAlreadyExistsException;
 import ru.monitoring.exception.ResourceNotFoundException;
 import ru.monitoring.model.User;
 import ru.monitoring.repository.UserRepository;
-import ru.monitoring.service.IUserService;
+import ru.monitoring.service.user.IUserService;
 
 @Service
 @RequiredArgsConstructor

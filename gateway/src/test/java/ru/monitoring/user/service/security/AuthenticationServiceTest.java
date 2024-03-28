@@ -9,9 +9,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import ru.monitoring.mapper.UserMapper;
-import ru.monitoring.service.security.AuthenticationService;
-import ru.monitoring.service.security.JwtService;
-import ru.monitoring.service.security.UserAuthService;
+import ru.monitoring.service.security.auth.AuthenticationService;
+import ru.monitoring.service.security.auth.UserAuthService;
+import ru.monitoring.service.security.token.JwtService;
 
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 

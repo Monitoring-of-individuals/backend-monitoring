@@ -5,6 +5,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import ru.monitoring.dto.SignUpUserRequestDto;
 import ru.monitoring.dto.UserResponseDto;
+import ru.monitoring.model.PendingVerificationUser;
 import ru.monitoring.model.Role;
 import ru.monitoring.model.User;
 
@@ -25,6 +26,15 @@ public class UserMapper {
                 .password(passwordEncoder.encode(signUpUserRequestDto.getPassword()))
                 .email(signUpUserRequestDto.getEmail())
                 .role(Role.ROLE_USER)
+                .build();
+    }
+
+    public PendingVerificationUser convertSignUpUserDtoToPendingVerificationUser(SignUpUserRequestDto signUpUserRequestDto) {
+        return PendingVerificationUser.builder()
+                .firstName(signUpUserRequestDto.getFirstName())
+                .lastName(signUpUserRequestDto.getLastName())
+                .email(signUpUserRequestDto.getEmail())
+                .password(passwordEncoder.encode(signUpUserRequestDto.getPassword()))
                 .build();
     }
 

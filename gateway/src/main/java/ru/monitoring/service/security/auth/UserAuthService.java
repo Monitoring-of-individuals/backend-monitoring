@@ -1,11 +1,11 @@
-package ru.monitoring.service.security;
+package ru.monitoring.service.security.auth;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import ru.monitoring.model.User;
-import ru.monitoring.service.impl.UserService;
+import ru.monitoring.service.user.impl.UserService;
 
 /**
  * Сервис для работы с пользователями в контексте безопасности.
