@@ -133,7 +133,7 @@ jobs:
             REPORT_SERVICE_URL=${{ secrets.REPORT_SERVICE_URL }}
             EOT
             EOT
-            cat > bundle.key << EOT
+            cat > bundle.crt << EOT
             ${{ secrets.PROD_SERVER_BUNDLE_CRT }}
             EOT
             cat > ratproject.ru.key << EOT
