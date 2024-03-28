@@ -3,16 +3,12 @@ package ru.monitoring.service;
 import com.alibaba.fastjson2.JSON;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import ru.monitoring.clients.ApiCloudClient;
 import ru.monitoring.dto.PersonInfoRequestDto;
-import ru.monitoring.dto.ReportDto;
-import ru.monitoring.dto.UserHistoryReportDto;
+import ru.monitoring.dto.ReportEntityDto;
 import ru.monitoring.dto.fedres_banckrupt.BankruptResponse;
 import ru.monitoring.dto.fssp.FsspResponse;
 import ru.monitoring.dto.gibdd.GibddResponse;
@@ -21,23 +17,14 @@ import ru.monitoring.dto.nalog.InnResponse;
 import ru.monitoring.dto.nalog.SelfEmplResponse;
 import ru.monitoring.dto.rosfinmon.Result;
 import ru.monitoring.dto.rosfinmon.RosFinMonResponse;
-import ru.monitoring.exceptions.ElementNotFoundException;
 import ru.monitoring.mapper.ReportBuilder;
 import ru.monitoring.mapper.ReportMapper;
 import ru.monitoring.model.ApiCloudBalance;
 import ru.monitoring.model.Report;
-import ru.monitoring.model.ReportEntity;
-import ru.monitoring.model.User;
-import ru.monitoring.repository.ReportsRepository;
-import ru.monitoring.repository.UserRepository;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static ru.monitoring.utils.Constants.API_CLOUD_TOKEN;
-import static ru.monitoring.utils.Constants.PATTERN_DATE;
 
 @AllArgsConstructor
 @Service
@@ -45,8 +32,6 @@ import static ru.monitoring.utils.Constants.PATTERN_DATE;
 public class SupplierRequestService {
 
     private final ApiCloudClient apiCloudClient;
-    private final ReportsRepository reportsRepository;
-    private final UserRepository userRepository;
 
     /**
      * Если поставщик не смог связаться получить какой-то ответ от федеральной службы, произошла ошибка в запросе
@@ -62,10 +47,7 @@ public class SupplierRequestService {
      * - в случае пустой строки возвращается пустой объект соответствующего класса;<p>
      * - в случае валидного JSON объекта возвращается результат парсинга JSON объекта в объект соответствующего класса<p>
      */
-    public ReportDto getReport(Long userId, PersonInfoRequestDto personInfo) {
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ElementNotFoundException("Пользователь с ID: " + userId + " не найден"));
+    public ReportEntityDto getReport(PersonInfoRequestDto personInfo) {
 
         FsspResponse fsspResponse = getEnfProcessingsCheck(personInfo);
         log.info("Response received {}", fsspResponse);
@@ -98,23 +80,7 @@ public class SupplierRequestService {
                 .addBankruptResponse(bankruptResponse)
                 .build();
 
-        // Перенести в Маппер
-        ReportEntity reportEntity = ReportMapper.toReportEntity(user, report, personInfo);
-
-        reportsRepository.save(reportEntity);
-
-        return ReportMapper.toReportDto(report);
-    }
-
-    public List<UserHistoryReportDto> getUserReportHistory(Long userId, int pageNumber, int pageSize) {
-        if (!userRepository.existsById(userId)) {
-            throw new ElementNotFoundException("Пользователь с ID: " + userId + " не найден");
-        }
-        Pageable page = PageRequest.of(pageNumber, pageSize);
-        Page<ReportEntity> userReportsFromDb = reportsRepository.findAllByUserIdOrderByReportDateTimeDesc(userId, page);
-        return userReportsFromDb.stream()
-                .map(ReportMapper::toUserHistoryReportDto)
-                .toList();
+        return ReportMapper.toReportEntity(report, personInfo);
     }
 
     public ApiCloudBalance getApiCloudBalance() {

@@ -28,7 +28,7 @@ public class ApiCloudClient {
 
     public ApiCloudClient(@Value("${apicloud.url}") String apiCloudUrl) {
         HttpClient httpClient = HttpClient.create()
-                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
                 .responseTimeout(Duration.ofMillis(TIMEOUT))
                 .doOnConnected(connection -> connection.addHandlerLast(
                                 new ReadTimeoutHandler(TIMEOUT, TimeUnit.MILLISECONDS))
