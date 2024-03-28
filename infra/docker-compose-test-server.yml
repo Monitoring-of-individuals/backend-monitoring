@@ -4,23 +4,29 @@ volumes:
 
 services:
 
-  backend_gateway:
-    container_name: backend_gateway
+  backend-gateway:
+    container_name: backend-gateway
     image: ghostblade3301/monitoring_gateway:latest
     depends_on:
       - postgres
       - redis
+      - backend-report
+    environment:
+      - SERVER_PORT=8080
+      - REPORT_SERVICE_URL=http://backend-report:9090
     env_file:
       - .env
     expose:
       - 8080
 
-  backend_report:
-    container_name: backend_report
+  backend-report:
+    container_name: backend-report
     image: ghostblade3301/monitoring_report:latest
     depends_on:
       - postgres
       - redis
+    environment:
+      - SERVER_PORT=9090
     env_file:
       - .env
     expose:
@@ -53,14 +59,14 @@ services:
   nginx:
     container_name: nginx
     depends_on:
-      - backend_gateway
-      - backend_report
+      - backend-gateway
+      - backend-report
       - frontend
     restart: unless-stopped
     image: nginx:1.25
     volumes:
       - frontend_volume:/opt/monitoring/frontend/build/ 
-      - /home/code/infra/nginx_prod.conf:/etc/nginx/conf.d/default.conf
+      - /home/code/infra/nginx_test.conf:/etc/nginx/conf.d/default.conf
       - /home/code/infra/fullchain.pem:/etc/ssl/fullchain.pem
       - /home/code/infra/privkey.pem:/etc/ssl/privkey.pem
       - /home/code/infra/options-ssl-nginx.conf:/etc/ssl/options-ssl-nginx.conf
