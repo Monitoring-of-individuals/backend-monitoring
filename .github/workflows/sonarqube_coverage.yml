@@ -1,4 +1,4 @@
-name: Build
+name: sonarqube tests pullrequest
 on:
   push:
     branches:
