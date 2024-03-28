@@ -1,8 +1,8 @@
-name: sonarqube tests pullrequest
-on:
-  push:
-    branches:
-      - infra/sonarqube_integration
+# name: sonarqube tests pullrequest
+# on:
+#   push:
+#     branches:
+#       - infra/sonarqube_integration
 
 jobs:
   build:
