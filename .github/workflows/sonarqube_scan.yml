@@ -33,8 +33,15 @@ jobs:
         restore-keys: ${{ runner.os }}-m2
     - name: Build with Maven
       run: mvn -B package --file pom.xml
-    - name: SonarQube Scan
+    - name: SonarQube Scan Report-service
       uses: kitabisa/sonarqube-action@v1.2.0
       with:
         host: ${{ secrets.SONAR_HOST_URL }}
         login: ${{ secrets.SONAR_TOKEN }}
+        projectBaseDir: "report-service/"
+    - name: SonarQube Scan Gateway
+      uses: kitabisa/sonarqube-action@v1.2.0
+      with:
+        host: ${{ secrets.SONAR_HOST_URL }}
+        login: ${{ secrets.SONAR_TOKEN }}
+        projectBaseDir: "gateway/"
