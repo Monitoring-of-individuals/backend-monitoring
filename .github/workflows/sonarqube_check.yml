@@ -2,7 +2,7 @@ name: Build
 on:
   push:
     branches:
-      - infra/sonarqubecheck
+      - infra/sonarqube_integration
 
 jobs:
   build:
