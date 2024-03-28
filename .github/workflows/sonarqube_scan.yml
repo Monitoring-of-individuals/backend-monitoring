@@ -38,10 +38,10 @@ jobs:
       with:
         host: ${{ secrets.SONAR_HOST_URL }}
         login: ${{ secrets.SONAR_TOKEN }}
-        projectBaseDir: "report-service/"
+        projectBaseDir: "report-service/src"
     - name: SonarQube Scan Gateway
       uses: kitabisa/sonarqube-action@v1.2.0
       with:
         host: ${{ secrets.SONAR_HOST_URL }}
         login: ${{ secrets.SONAR_TOKEN }}
-        projectBaseDir: "gateway/"
+        projectBaseDir: "gateway/src"
