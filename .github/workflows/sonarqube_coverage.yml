@@ -1,15 +1,15 @@
 name: sonarqube tests pullrequest
 on:
-  push:
+  pull_request:
     branches:
-      - infra/sonarqube_integration
+      - develop
 
 jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: Set up JDK 17
@@ -34,19 +34,3 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=individuals
-
-  test:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - uses: phwt/sonarqube-quality-gate-action@v1
-        id: quality-gate-check
-        with:
-          sonar-project-key: "backend-monitoring"
-          sonar-host-url: ${{ secrets.SONAR_HOST_URL }}
-          sonar-token: ${{ secrets.SONAR_TOKEN }}
-          branch: infra/sonarqube_integration # Optional input
-      - name: Output result
-        run: |
-          echo "${{ steps.quality-gate-check.outputs.project-status }}"
-          echo "${{ steps.quality-gate-check.outputs.quality-gate-result }}"
